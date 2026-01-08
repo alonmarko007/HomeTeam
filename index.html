@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>משפחת מרקוביץ - ניהול תמונות חכם ✨</title>
+    <title>משפחת מרקוביץ - v26 ✨</title>
     <style>
         :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --afternoon: #f0932b; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; }
         body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; padding: 10px; direction: rtl; margin: 0; color: #2d3436; }
-        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: auto; min-height: 92vh; position: relative; }
+        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: auto; min-height: 92vh; position: relative; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         
+        /* Version Tag */
+        .version-footer { font-size: 0.7rem; color: #b2bec3; margin-top: auto; padding-top: 20px; }
+        .update-badge { background: #dfe6e9; color: #636e72; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; display: inline-block; margin-bottom: 10px; }
+
         /* Loading Overlay */
         #loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; border-radius:30px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -49,13 +53,16 @@
 
     <div id="admin-screen" class="hidden">
         <h2 style="margin-top:0;">מרכז שליטה ⚙️</h2>
+        
         <div class="admin-section">
+            <div class="update-badge">גרסה 26.0: הוספת מעקב גרסאות וכיווץ תמונות</div>
             <h3>👶 ניהול ילדים ותמונות</h3>
             <table class="mgmt-table"><tbody id="mgmt-kids"></tbody></table>
             <input type="file" id="change-photo-input" class="hidden" accept="image/*" onchange="processPhotoChange(event)">
             <button onclick="toggleBox('add-kid-box')" style="background:var(--success);">+ הוסף ילד</button>
             <div id="add-kid-box" class="hidden"><input type="text" id="new-name" placeholder="שם"><input type="password" id="new-pin" placeholder="סיסמה"><button onclick="saveChild()">שמור</button></div>
         </div>
+
         <button onclick="location.reload()" style="background:#333;">🔙 חזרה</button>
     </div>
 
@@ -70,17 +77,31 @@
         </div>
         <button onclick="location.reload()" style="background:#eee; color:black; margin-top:15px;">⬅️ החלף ילד</button>
     </div>
+
+    <div class="version-footer">
+        גרסה: <span id="ver-num"></span> | עדכון אחרון: <span id="ver-date"></span>
+    </div>
 </div>
 
 <script>
+    // מעקב גרסה - שנה כאן בכל עדכון קוד
+    const VERSION = "26.0";
+    const LAST_UPDATE = "09/01/2026 00:20";
+
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec";
     const defImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
     
     let db = { adminPin: "1234", children: [], tasks: [], gifts: [], history: [] };
     let curIdx = null;
 
+    function initVersion() {
+        document.getElementById('ver-num').innerText = VERSION;
+        document.getElementById('ver-date').innerText = LAST_UPDATE;
+    }
+
     async function init() {
-        showLoading(true, "טוען נתונים...");
+        initVersion();
+        showLoading(true, "טוען נתונים מהענן...");
         try {
             const response = await fetch(CLOUD_URL);
             const data = await response.json();
@@ -91,7 +112,7 @@
     }
 
     async function save() {
-        showLoading(true, "מסנכרן עם הענן...");
+        showLoading(true, "מסנכרן שינויים...");
         try {
             await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) });
             setTimeout(() => showLoading(false), 800);
@@ -108,19 +129,15 @@
             <tr>
                 <td><img src="${c.img || defImg}" class="avatar-sm"> ${c.name}</td>
                 <td style="text-align:left;">
-                    <button class="btn-small" style="background:#747d8c" onclick="openPhotoPicker(${i})">📷 שינוי</button>
-                    ${c.img ? `<button class="btn-small btn-danger" onclick="removePhoto(${i})">🗑️ הסר</button>` : ''}
-                    <button class="btn-small btn-danger" onclick="delItem('children',${i})">❌ מחק ילד</button>
+                    <button class="btn-small" style="background:#747d8c" onclick="openPhotoPicker(${i})">📷</button>
+                    ${c.img ? `<button class="btn-small btn-danger" onclick="removePhoto(${i})">🗑️</button>` : ''}
+                    <button class="btn-small btn-danger" onclick="delItem('children',${i})">❌</button>
                 </td>
             </tr>`).join('');
     }
 
     function removePhoto(i) {
-        if(confirm("להסיר את התמונה?")) {
-            db.children[i].img = null;
-            save();
-            render();
-        }
+        if(confirm("להסיר את התמונה?")) { db.children[i].img = null; save(); render(); }
     }
 
     function openPhotoPicker(i) {
@@ -131,23 +148,19 @@
     function processPhotoChange(e) {
         const file = e.target.files[0];
         if (!file) return;
-
-        showLoading(true, "מעבד תמונה...");
+        showLoading(true, "מכווץ תמונה...");
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
-                // מנגנון כיווץ תמונה - חשוב למניעת תקיעה בשיטס
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 150; // גודל קטן לאוואטר
+                const MAX_WIDTH = 150; 
                 const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH;
                 canvas.height = img.height * scaleSize;
-                
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                db.children[curIdx].img = canvas.toDataURL('image/jpeg', 0.7); // כיווץ איכות ל-70%
+                db.children[curIdx].img = canvas.toDataURL('image/jpeg', 0.7); 
                 save();
                 render();
             };
