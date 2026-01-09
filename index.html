@@ -9,10 +9,25 @@
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; direction: rtl; user-select: none; }
         .card { background: white; max-width: 500px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
         .hidden { display: none !important; }
+        
+        /* סנכרון וגרסה */
+        #status-bar { position: fixed; top: 10px; left: 10px; display: flex; align-items: center; gap: 5px; z-index: 1000; font-size: 10px; color: #aaa; font-weight: bold; }
+        #sync-dot { width: 10px; height: 10px; border-radius: 50%; background: #2ed573; }
+        .syncing { background: var(--pending) !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* מסך כניסה - תיקון שם מתחת לתמונה */
         #login-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .kids-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 30px 0; width: 100%; }
-        .k-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; width: 110px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .avatar-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); margin-bottom: 5px; }
+        .k-card { 
+            background: #fff; border: 1px solid #eee; border-radius: 20px; 
+            padding: 15px; width: 120px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); margin-bottom: 10px; }
+        .k-name { font-weight: bold; color: #333; font-size: 1.1rem; }
+
         .row { background: white; border: 1px solid #e0e0e0; padding: 14px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .pending { border: 2px solid var(--pending); background: #fffcf5; cursor: default; }
         .done { opacity: 0.4; pointer-events: none; background: #f5f5f5; }
@@ -24,13 +39,14 @@
         .btn-mgmt-active { background: var(--p-dark) !important; }
         .btn-s { width: auto; padding: 6px 10px; font-size: 0.75rem; }
         .btn-danger { background: var(--danger); }
-        #sync-dot { position: fixed; top: 10px; left: 10px; width: 10px; height: 10px; border-radius: 50%; background: #2ed573; z-index: 1000; }
-        .syncing { background: var(--pending) !important; }
     </style>
 </head>
 <body>
 
-<div id="sync-dot"></div>
+<div id="status-bar">
+    <div id="sync-dot"></div>
+    <span>v27.9</span>
+</div>
 
 <div class="card">
     <div id="login-screen">
@@ -65,7 +81,6 @@
             <h4 style="margin:0 0 10px 0;">🔔 משימות לאישור</h4>
             <div id="admin-pending"></div>
         </div>
-
         <div class="admin-section">
             <h4 style="margin:0 0 10px 0;">🔧 עריכת תוכן</h4>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
@@ -73,7 +88,6 @@
                 <button id="btn-tasks" class="btn-s" onclick="uiToggle('edit-tasks', this)" style="background:#ddd; color:black;">משימות</button>
                 <button id="btn-gifts" class="btn-s" onclick="uiToggle('edit-gifts', this)" style="background:#ddd; color:black;">צ'ופרים</button>
             </div>
-
             <div id="edit-kids" class="hidden">
                 <table class="mgmt-table" id="table-kids"></table>
                 <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;">
@@ -83,7 +97,6 @@
                     <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
                 </div>
             </div>
-
             <div id="edit-tasks" class="hidden"><table class="mgmt-table" id="table-tasks"></table><input id="tn" placeholder="משימה"><input id="tp" type="number" placeholder="כוכבים"><select id="tt"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option><option value="all">כל היום</option></select><button onclick="addT()" style="background:var(--success);">+ הוסף משימה</button></div>
             <div id="edit-gifts" class="hidden"><table class="mgmt-table" id="table-gifts"></table><input id="gn" placeholder="צ'ופר"><input id="gc" type="number" placeholder="מחיר"><button onclick="addG()" style="background:var(--success);">+ הוסף צ'ופר</button></div>
         </div>
@@ -100,62 +113,40 @@
     let uploadIdx = null;
 
     function render() {
-        document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `<div class="k-card" onclick="login(${i})">${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:35px; padding:12px;">👤</div>`}<b>${c.name}</b></div>`).join('');
+        // רנדור מסך כניסה - שם מתחת לתמונה
+        document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `
+            <div class="k-card" onclick="login(${i})">
+                ${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:40px; margin-bottom:10px;">👤</div>`}
+                <span class="k-name">${c.name}</span>
+            </div>`).join('');
+
         document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `<div class="row" style="cursor:default"><small><b>${p.child}</b>: ${p.task}</small><div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button><button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div></div>`).join('') || "אין משימות";
-
-        document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`
-            <tr>
-                <td>${c.img ? `<img src="${c.img}" style="width:35px;height:35px;border-radius:50%;object-fit:cover">` : '👤'}</td>
-                <td><b>${c.name}</b><br><small>PIN: ${c.pin}</small></td>
-                <td style="text-align:left; display:flex; gap:3px;">
-                    <button class="btn-s" onclick="triggerFile(${i})" style="background:var(--p)">📸</button>
-                    <button class="btn-s btn-danger" onclick="del('children',${i})">🗑️</button>
-                </td>
-            </tr>`).join('');
-
+        document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`<tr><td>${c.img ? `<img src="${c.img}" style="width:35px;height:35px;border-radius:50%;object-fit:cover">` : '👤'}</td><td><b>${c.name}</b><br><small>PIN: ${c.pin}</small></td><td style="text-align:left; display:flex; gap:3px;"><button class="btn-s" onclick="triggerFile(${i})" style="background:var(--p)">📸</button><button class="btn-s btn-danger" onclick="del('children',${i})">🗑️</button></td></tr>`).join('');
         document.getElementById('table-tasks').innerHTML = db.tasks.map((t,i)=>`<tr><td>${t.name} (${t.points})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('tasks',${i})">🗑️</button></td></tr>`).join('');
         document.getElementById('table-gifts').innerHTML = db.gifts.map((g,i)=>`<tr><td>${g.name} (${g.cost})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
     }
 
-    // העלאת תמונה
     function triggerFile(i) { uploadIdx = i; document.getElementById('fileInput').click(); }
     document.getElementById('fileInput').onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
-        reader.onloadend = function() {
-            db.children[uploadIdx].img = reader.result;
-            render();
-            save();
-        }
+        reader.onloadend = function() { db.children[uploadIdx].img = reader.result; render(); save(); }
         reader.readAsDataURL(file);
     };
 
     function login(i) { if(prompt(`סיסמה ל-${db.children[i].name}:`) === db.children[i].pin) { cur = i; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); updateUI(); } }
-
+    
     function updateUI() {
-        const c = db.children[cur];
-        document.getElementById('u-name').innerText = c.name;
-        document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
+        const c = db.children[cur]; document.getElementById('u-name').innerText = c.name; document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
         document.getElementById('u-avatar-top').innerHTML = c.img ? `<img src="${c.img}" style="width:50px;height:50px;border-radius:50%;object-fit:cover">` : `<div style="font-size:2.5rem;">👤</div>`;
         const h = new Date().getHours(); const type = (h >= 5 && h < 15) ? 'morning' : 'evening';
-        
         document.getElementById('list-items').innerHTML = db.tasks.filter(t => t.type === type || t.type === 'all').map(t => {
-            const isP = db.pending.some(p => p.child === c.name && p.tid === t.id);
-            const isD = c.doneToday && c.doneToday.includes(t.id);
-            // כאן התיקון - מוודא שה-onclick עובד
-            return `<div class="row ${isD?'done':''} ${isP?'pending':''}" onclick="${(!isD && !isP) ? `submitTask(${t.id},'${t.name}',${t.points})` : ''}">
-                <span>${t.name}</span><b>${t.points}⭐</b></div>`;
+            const isP = db.pending.some(p => p.child === c.name && p.tid === t.id); const isD = c.doneToday && c.doneToday.includes(t.id);
+            return `<div class="row ${isD?'done':''} ${isP?'pending':''}" onclick="${(!isD && !isP) ? `submitTask(${t.id},'${t.name}',${t.points})` : ''}"><span>${t.name}</span><b>${t.points}⭐</b></div>`;
         }).join('');
     }
 
-    function submitTask(id, name, pts) {
-        db.pending.push({ tid: id, task: name, child: db.children[cur].name, pts: pts });
-        updateUI();
-        save();
-    }
-
-    // פונקציות סנכרון וניהול (ללא שינוי)
+    function submitTask(id, name, pts) { db.pending.push({ tid: id, task: name, child: db.children[cur].name, pts: pts }); updateUI(); save(); }
     async function sync() { setSync(true); try { const res = await fetch(URL + "?t=" + Date.now()); const data = await res.json(); if (data) { db = data; localStorage.setItem('family_db', JSON.stringify(db)); render(); if(cur !== null) updateUI(); } } catch(e) {} setSync(false); }
     async function save() { localStorage.setItem('family_db', JSON.stringify(db)); setSync(true); fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) }).then(() => setSync(false)); }
     function handleAppr(i, isOk) { if(isOk) { const p = db.pending[i]; const child = db.children.find(x => x.name === p.child); if(child) { child.points += p.pts; if(!child.doneToday) child.doneToday = []; child.doneToday.push(p.tid); } } db.pending.splice(i, 1); render(); save(); }
