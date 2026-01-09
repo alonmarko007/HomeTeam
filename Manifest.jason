@@ -1,20 +1,16 @@
- {
+{
   "short_name": "מרקוביץ'",
-  "name": "משפחת מרקוביץ - לוח משימות",
+  "name": "משפחת מרקוביץ' - ניהול כוכבים",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/5643/5643900.png",
       "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "sizes": "512x512"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "index.html?v=26.8",
   "background_color": "#f0f7ff",
   "display": "standalone",
   "scope": "./",
-  "theme_color": "#4a90e2",
-  "description": "אפליקציית ניהול משימות ופרסים למשפחת מרקוביץ",
-  "dir": "rtl",
-  "lang": "he"
+  "theme_color": "#4a90e2"
 }
