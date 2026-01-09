@@ -9,43 +9,23 @@
     <style>
         :root { --p: #4a90e2; --p-dark: #2c5d9e; --bg: #f0f7ff; --pending: #ffa502; --success: #2ed573; --danger: #ff4757; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; direction: rtl; user-select: none; }
-        
-        .card { 
-            background: white; max-width: 500px; margin: auto; min-height: 100vh;
-            display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
-        }
-
+        .card { background: white; max-width: 500px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
         .hidden { display: none !important; }
-
         #login-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .kids-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 30px 0; width: 100%; }
-        .k-card { 
-            background: #fff; border: 2px solid #eee; border-radius: 20px; 
-            padding: 15px; width: 110px; text-align: center; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .row { 
-            background: white; border: 1px solid #e0e0e0; padding: 14px; 
-            border-radius: 18px; margin-bottom: 10px; display: flex; 
-            justify-content: space-between; align-items: center;
-        }
+        .k-card { background: #fff; border: 2px solid #eee; border-radius: 20px; padding: 15px; width: 110px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .avatar-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); margin-bottom: 5px; }
+        .row { background: white; border: 1px solid #e0e0e0; padding: 14px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .pending { border: 2px solid var(--pending); background: #fffcf5; }
         .done { opacity: 0.4; pointer-events: none; background: #f5f5f5; }
-
         .admin-section { background: #f8f9fa; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #ddd; text-align: right; }
-        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .mgmt-table td { padding: 8px; border-bottom: 1px solid #eee; }
-
+        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .mgmt-table td { padding: 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
         input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
-        button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; }
-        
-        /* עיצוב כפתור ניהול פעיל */
-        .btn-mgmt-active { background: var(--p-dark) !important; color: white !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .btn-s { width: auto; padding: 6px 12px; font-size: 0.8rem; }
+        button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
+        .btn-mgmt-active { background: var(--p-dark) !important; }
+        .btn-s { width: auto; padding: 6px 10px; font-size: 0.75rem; }
         .btn-danger { background: var(--danger); }
-
         #sync-dot { position: fixed; top: 10px; left: 10px; width: 10px; height: 10px; border-radius: 50%; background: #2ed573; z-index: 1000; }
         .syncing { background: var(--pending) !important; transform: scale(1.2); }
     </style>
@@ -68,7 +48,7 @@
                 <b id="u-name" style="font-size: 1.4rem;"></b><br>
                 <span id="u-pts" style="color:var(--p); font-weight:bold; font-size: 1.2rem;">⭐ 0</span>
             </div>
-            <div style="font-size: 2.5rem;">👤</div>
+            <div id="u-avatar-top"></div>
         </div>
         <div id="tasks-view">
             <div id="list-items"></div>
@@ -98,8 +78,12 @@
 
             <div id="edit-kids" class="hidden">
                 <table class="mgmt-table" id="table-kids"></table>
-                <div style="display:flex; gap:5px;"><input id="nk" placeholder="שם"><input id="np" placeholder="PIN" style="width:70px;"></div>
-                <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
+                <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;">
+                    <input id="nk" placeholder="שם הילד">
+                    <input id="np" placeholder="סיסמה (PIN)">
+                    <input id="ni" placeholder="קישור לתמונה (URL)">
+                    <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
+                </div>
             </div>
             <div id="edit-tasks" class="hidden">
                 <table class="mgmt-table" id="table-tasks"></table>
@@ -125,18 +109,31 @@
     let cur = null;
 
     function render() {
+        // מסך כניסה
         document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `
             <div class="k-card" onclick="login(${i})">
-                <div style="font-size:35px;">👤</div><b>${c.name}</b>
+                ${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:35px; padding:12px;">👤</div>`}
+                <b>${c.name}</b>
             </div>`).join('');
 
+        // אישור משימות
         document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `
             <div class="row"><small><b>${p.child}</b>: ${p.task}</small>
                 <div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button>
                 <button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div>
             </div>`).join('') || "אין משימות";
 
-        document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`<tr><td>${c.name}</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('children',${i})">🗑️</button></td></tr>`).join('');
+        // טבלת ניהול ילדים - כולל PIN ותמונה
+        document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`
+            <tr>
+                <td>${c.img ? `<img src="${c.img}" style="width:30px;height:30px;border-radius:50%">` : '👤'}</td>
+                <td><b>${c.name}</b><br><small>PIN: ${c.pin}</small></td>
+                <td style="text-align:left">
+                    <button class="btn-s" onclick="delImg(${i})" style="background:#aaa">🗑️🖼️</button>
+                    <button class="btn-s btn-danger" onclick="del('children',${i})">🗑️👤</button>
+                </td>
+            </tr>`).join('');
+
         document.getElementById('table-tasks').innerHTML = db.tasks.map((t,i)=>`<tr><td>${t.name} (${t.points})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('tasks',${i})">🗑️</button></td></tr>`).join('');
         document.getElementById('table-gifts').innerHTML = db.gifts.map((g,i)=>`<tr><td>${g.name} (${g.cost})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
     }
@@ -168,6 +165,7 @@
         const c = db.children[cur];
         document.getElementById('u-name').innerText = c.name;
         document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
+        document.getElementById('u-avatar-top').innerHTML = c.img ? `<img src="${c.img}" style="width:50px;height:50px;border-radius:50%;object-fit:cover">` : `<div style="font-size:2.5rem;">👤</div>`;
         const hour = new Date().getHours();
         const type = (hour >= 5 && hour < 15) ? 'morning' : 'evening';
         document.getElementById('list-items').innerHTML = db.tasks
@@ -191,20 +189,14 @@
     }
 
     function uiToggle(id, btn) {
-        const target = document.getElementById(id);
-        const isHidden = target.classList.contains('hidden');
-        
-        // סגירת כל שאר התיבות וניקוי צבע הכפתורים
+        const target = document.getElementById(id); const isHidden = target.classList.contains('hidden');
         ['edit-kids', 'edit-tasks', 'edit-gifts'].forEach(boxId => document.getElementById(boxId).classList.add('hidden'));
         ['btn-kids', 'btn-tasks', 'btn-gifts'].forEach(bId => document.getElementById(bId).classList.remove('btn-mgmt-active'));
-
-        if (isHidden) {
-            target.classList.remove('hidden');
-            btn.classList.add('btn-mgmt-active');
-        }
+        if (isHidden) { target.classList.remove('hidden'); btn.classList.add('btn-mgmt-active'); }
     }
 
-    function addK() { db.children.push({name: document.getElementById('nk').value, pin: document.getElementById('np').value, points: 0}); render(); save(); }
+    function addK() { db.children.push({name: document.getElementById('nk').value, pin: document.getElementById('np').value, img: document.getElementById('ni').value, points: 0}); render(); save(); }
+    function delImg(i) { db.children[i].img = ""; render(); save(); }
     function addT() { db.tasks.push({id: Date.now(), name: document.getElementById('tn').value, points: parseInt(document.getElementById('tp').value), type: document.getElementById('tt').value}); render(); save(); }
     function addG() { db.gifts.push({name: document.getElementById('gn').value, cost: parseInt(document.getElementById('gc').value)}); render(); save(); }
     function del(cat, i) { if(confirm("למחוק?")) { db[cat].splice(i,1); render(); save(); } }
@@ -220,8 +212,7 @@
     function goAdmin() { if(prompt("סיסמה:")==="1234"){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
     function setSync(s) { document.getElementById('sync-dot').className = s ? 'syncing' : ''; }
 
-    render();
-    sync();
+    render(); sync();
 </script>
 </body>
 </html>
