@@ -1,16 +1,21 @@
 {
   "short_name": "מרקוביץ'",
   "name": "משפחת מרקוביץ' - ניהול כוכבים",
+  "description": "אפליקציית ניהול כוכבים ומשימות למשפחת מרקוביץ'",
+  "lang": "he",
+  "dir": "rtl",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/5643/5643900.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": "index.html?v=26.8",
-  "background_color": "#f0f7ff",
   "display": "standalone",
-  "scope": "./",
-  "theme_color": "#4a90e2"
+  "orientation": "portrait",
+  "background_color": "#f0f7ff",
+  "theme_color": "#4a90e2",
+  "scope": "./"
 }
