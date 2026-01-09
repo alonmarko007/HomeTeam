@@ -3,170 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' Pro ✅</title>
+    <title>מרקוביץ' v27.1 - תיקון תמונות ✅</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        :root { --p: #4a90e2; --p-dark: #2c5d9e; --bg: #f0f7ff; --pending: #ffa502; --success: #2ed573; --danger: #ff4757; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; direction: rtl; user-select: none; }
-        .card { background: white; max-width: 500px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; --pending: #ffa502; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; margin: 0; direction: rtl; user-select: none; }
+        .card { background: white; padding: 15px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; margin: auto; min-height: 95vh; display: flex; flex-direction: column; box-sizing: border-box; }
         .hidden { display: none !important; }
-        
-        #status-bar { position: fixed; top: 10px; left: 10px; display: flex; align-items: center; gap: 5px; z-index: 1000; font-size: 10px; color: #aaa; font-weight: bold; }
-        #sync-dot { width: 10px; height: 10px; border-radius: 50%; background: #2ed573; }
-        .syncing { background: var(--pending) !important; }
-
-        /* עיצוב כרטיסי ילדים משופר */
-        #login-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .kids-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 30px 0; width: 100%; }
-        
-        .k-card { 
-            background: #fff; border: 1px solid #eee; border-radius: 25px; 
-            width: 130px; height: 130px; display: flex; align-items: center; 
-            justify-content: center; cursor: pointer; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: transform 0.2s;
-            position: relative;
-        }
-        .k-card:active { transform: scale(0.95); }
-
-        .avatar-full { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* עיצוב למקרה שאין תמונה - השם במרכז */
-        .no-img-name { 
-            font-size: 1.4rem; font-weight: 800; color: var(--p); 
-            text-align: center; padding: 10px; line-height: 1.2;
-        }
-
-        .row { background: white; border: 1px solid #e0e0e0; padding: 14px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .pending { border: 2px solid var(--pending); background: #fffcf5; cursor: default; }
-        .done { opacity: 0.4; pointer-events: none; background: #f5f5f5; }
-        .admin-section { background: #f8f9fa; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #ddd; text-align: right; }
-        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        .mgmt-table td { padding: 8px 4px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
+        .admin-section { background: #f9f9fb; padding: 12px; border-radius: 20px; margin-bottom: 10px; border: 1px solid #eee; text-align: right; }
+        .mgmt-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; font-size: 0.85rem; }
+        .mgmt-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .item-row { background: white; border: 2px solid #eee; padding: 12px; border-radius: 18px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .status-pending { border-color: var(--pending); background: #fffaf0; position: relative; }
+        .status-pending::after { content: "⏳ ממתין לאישור"; font-size: 0.6rem; color: var(--pending); position: absolute; bottom: 2px; left: 10px; }
+        .done { opacity: 0.5; background: #f1f2f6; pointer-events: none; }
+        input, select, button { width: 100%; padding: 10px; margin: 4px 0; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box; }
         button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
-        .btn-mgmt-active { background: var(--p-dark) !important; }
-        .btn-s { width: auto; padding: 6px 10px; font-size: 0.75rem; }
+        .btn-small { width: auto; padding: 4px 8px; font-size: 0.7rem; }
         .btn-danger { background: var(--danger); }
+        .admin-badge { background: var(--danger); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.7rem; }
+        #loading-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--p); transition: width 0.3s; width: 0%; z-index: 2000; }
+        .avatar-main { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--p); object-fit: cover; background: #eee; }
     </style>
 </head>
 <body>
 
-<div id="status-bar">
-    <div id="sync-dot"></div>
-    <span>v28.0</span>
-</div>
+<div id="loading-bar"></div>
 
 <div class="card">
     <div id="login-screen">
-        <h1 style="color:var(--p); margin:0; margin-bottom: 10px;">משפחת מרקוביץ' ✨</h1>
-        <div id="kids-list" class="kids-grid"></div>
-        <button onclick="goAdmin()" style="background:none; color: #bbb; width: auto; text-decoration: underline; font-size: 0.9rem;">ניהול הורים</button>
-    </div>
-
-    <div id="main-screen" class="hidden">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <button onclick="location.reload()" style="background:none; color:#666; width:auto; font-size: 1.5rem; padding:0;">🔙</button>
-            <div style="text-align: center;">
-                <b id="u-name" style="font-size: 1.4rem;"></b><br>
-                <span id="u-pts" style="color:var(--p); font-weight:bold; font-size: 1.2rem;">⭐ 0</span>
-            </div>
-            <div id="u-avatar-top"></div>
-        </div>
-        <div id="tasks-view">
-            <div id="list-items"></div>
-            <button onclick="showShop()" style="background:var(--success); margin-top:20px; height: 55px; font-size: 1.2rem;">🎁 חנות הצ'ופרים</button>
-        </div>
-        <div id="shop-view" class="hidden">
-            <h3 style="margin-top:0;">🎁 חנות</h3>
-            <div id="shop-items"></div>
-            <button onclick="hideShop()" style="background:#666; margin-top:15px;">🔙 חזרה</button>
-        </div>
+        <h2 style="margin: 15px 0;">משפחת מרקוביץ' ✨</h2>
+        <div id="children-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px;"></div>
+        <button onclick="showAdmin()" style="background:#636e72; width: 80%;">⚙️ ממשק הורים <span id="pending-badge-login" class="admin-badge hidden">0</span></button>
     </div>
 
     <div id="admin-screen" class="hidden">
-        <h2 style="margin-top:0;">ניהול מערכת ⚙️</h2>
-        <div class="admin-section" style="border: 2px solid var(--pending);"><h4 style="margin:0 0 10px 0;">🔔 משימות לאישור</h4><div id="admin-pending"></div></div>
+        <h3 style="margin: 5px;">ניהול מערכת 🛡️</h3>
+        
+        <div class="admin-section" style="border: 2px solid var(--pending);">
+            <h4 style="margin: 0 0 8px 0;">🔔 אישור משימות (<span id="pending-count">0</span>)</h4>
+            <div id="pending-tasks-list" style="max-height: 150px; overflow-y: auto;"></div>
+        </div>
+
         <div class="admin-section">
-            <h4 style="margin:0 0 10px 0;">🔧 עריכת תוכן</h4>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <button id="btn-kids" class="btn-s" onclick="uiToggle('edit-kids', this)" style="background:#ddd; color:black;">ילדים</button>
-                <button id="btn-tasks" class="btn-s" onclick="uiToggle('edit-tasks', this)" style="background:#ddd; color:black;">משימות</button>
-                <button id="btn-gifts" class="btn-s" onclick="uiToggle('edit-gifts', this)" style="background:#ddd; color:black;">צ'ופרים</button>
+            <h4 style="margin: 0 0 8px 0;">🔧 עריכת תוכן</h4>
+            <div style="display:flex; gap:5px;">
+                <button onclick="toggleBox('kids-mgmt')" class="btn-small" style="background:#eee; color:#333;">ילדים</button>
+                <button onclick="toggleBox('tasks-mgmt')" class="btn-small" style="background:#eee; color:#333;">משימות</button>
+                <button onclick="toggleBox('gifts-mgmt')" class="btn-small" style="background:#eee; color:#333;">צ'ופרים</button>
             </div>
-            <div id="edit-kids" class="hidden">
-                <table class="mgmt-table" id="table-kids"></table>
-                <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;">
-                    <input id="nk" placeholder="שם הילד">
-                    <input id="np" placeholder="סיסמה (PIN)">
-                    <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
+
+            <div id="kids-mgmt" class="hidden">
+                <table class="mgmt-table" id="mgmt-kids-table"></table>
+                <div style="border:1px solid #ddd; padding:5px; margin-top:5px; border-radius:10px;">
+                    <input type="text" id="new-kid-name" placeholder="שם הילד">
+                    <input type="tel" id="new-kid-pin" placeholder="PIN (4 ספרות)">
+                    <button onclick="addKid()" style="background:var(--success);">הוסף ילד</button>
                 </div>
             </div>
-            <div id="edit-tasks" class="hidden"><table class="mgmt-table" id="table-tasks"></table><input id="tn" placeholder="משימה"><input id="tp" type="number" placeholder="כוכבים"><select id="tt"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option><option value="all">כל היום</option></select><button onclick="addT()" style="background:var(--success);">+ הוסף משימה</button></div>
-            <div id="edit-gifts" class="hidden"><table class="mgmt-table" id="table-gifts"></table><input id="gn" placeholder="צ'ופר"><input id="gc" type="number" placeholder="מחיר"><button onclick="addG()" style="background:var(--success);">+ הוסף צ'ופר</button></div>
+
+            <div id="tasks-mgmt" class="hidden">
+                <table class="mgmt-table" id="mgmt-tasks-table"></table>
+                <input type="text" id="t-name" placeholder="שם המשימה">
+                <input type="number" id="t-pts" placeholder="כוכבים">
+                <select id="t-type"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option></select>
+                <select id="t-target"></select>
+                <button onclick="addTask()" style="background:var(--success);">הוסף משימה</button>
+            </div>
+
+            <div id="gifts-mgmt" class="hidden">
+                <table class="mgmt-table" id="mgmt-gifts-table"></table>
+                <input type="text" id="g-name" placeholder="שם הצ'ופר">
+                <input type="number" id="g-cost" placeholder="מחיר בכוכבים">
+                <button onclick="addGift()" style="background:var(--success);">הוסף צ'ופר</button>
+            </div>
         </div>
-        <button onclick="location.reload()" style="background:#333; margin-top:10px;">🔙 חזרה</button>
+
+        <input type="file" id="photo-input" class="hidden" accept="image/*" onchange="processPhoto(event)">
+        <button onclick="forceSync()" style="background:var(--p); margin-top: 5px;">🔄 סנכרון ענן</button>
+        <button onclick="location.reload()" style="background:#333; margin-top: 5px;">🔙 חזרה</button>
+    </div>
+
+    <div id="main-screen" class="hidden">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button onclick="location.reload()" style="background:none; color:#636e72; padding:0; width:auto;">🔙 יציאה</button>
+            <div style="text-align: center;">
+                <b id="user-title" style="font-size: 1.3rem;"></b><br>
+                <span id="points-display" style="color: var(--p); font-weight: bold; font-size: 1.2rem;">⭐ 0</span>
+            </div>
+            <div id="avatar-box"></div>
+        </div>
+        <div id="tasks-list"></div>
+        <button onclick="showShop()" style="background:var(--success); margin-top: 15px; height: 50px;">🎁 חנות הצ'ופרים</button>
     </div>
 </div>
 
-<input type="file" id="fileInput" accept="image/*" style="display:none">
-
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec";
-    let db = JSON.parse(localStorage.getItem('family_db')) || { children: [], tasks: [], pending: [], gifts: [] };
-    let cur = null;
-    let uploadIdx = null;
+    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec";
+    let db = { children: [], tasks: [], pending: [], gifts: [], history: [] };
+    let curIdx = null;
+    let photoTargetIdx = null;
 
-    function render() {
-        // רנדור מסך כניסה - לוגיקה חדשה לשם/תמונה
-        document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `
-            <div class="k-card" onclick="login(${i})">
-                ${c.img ? 
-                    `<img src="${c.img}" class="avatar-full">` : 
-                    `<div class="no-img-name">${c.name}</div>`
-                }
-            </div>`).join('');
-
-        document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `<div class="row" style="cursor:default"><small><b>${p.child}</b>: ${p.task}</small><div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button><button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div></div>`).join('') || "אין משימות";
-        document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`<tr><td>${c.img ? `<img src="${c.img}" style="width:35px;height:35px;border-radius:50%;object-fit:cover">` : '👤'}</td><td><b>${c.name}</b><br><small>PIN: ${c.pin}</small></td><td style="text-align:left; display:flex; gap:3px;"><button class="btn-s" onclick="triggerFile(${i})" style="background:var(--p)">📸</button><button class="btn-s btn-danger" onclick="del('children',${i})">🗑️</button></td></tr>`).join('');
-        document.getElementById('table-tasks').innerHTML = db.tasks.map((t,i)=>`<tr><td>${t.name} (${t.points})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('tasks',${i})">🗑️</button></td></tr>`).join('');
-        document.getElementById('table-gifts').innerHTML = db.gifts.map((g,i)=>`<tr><td>${g.name} (${g.cost})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
+    async function init() {
+        updateLoading(30);
+        try {
+            const r = await fetch(`${CLOUD_URL}?t=${Date.now()}`);
+            db = await r.json();
+            if (!db.pending) db.pending = [];
+            renderAll();
+            updateLoading(100);
+        } catch (e) { updateLoading(0); }
     }
 
-    function triggerFile(i) { uploadIdx = i; document.getElementById('fileInput').click(); }
-    document.getElementById('fileInput').onchange = function(e) {
-        const file = e.target.files[0]; if (!file) return;
+    function renderAll() {
+        document.getElementById('children-list').innerHTML = db.children.map((c, i) => `
+            <div onclick="login(${i})" style="background:white; border-radius:15px; padding:10px; border:2px solid #eee;">
+                <img src="${c.img || ''}" class="avatar-main" onerror="this.src='https://via.placeholder.com/60?text=?'"><br>
+                <b>${c.name}</b>
+            </div>
+        `).join('');
+
+        document.getElementById('pending-count').innerText = db.pending.length;
+        document.getElementById('pending-tasks-list').innerHTML = db.pending.map((p, i) => `
+            <div class="item-row">
+                <small><b>${p.childName}</b>: ${p.taskName}</small>
+                <div>
+                    <button class="btn-small" style="background:var(--success)" onclick="approveTask(${i})">✅</button>
+                    <button class="btn-small" style="background:var(--danger)" onclick="rejectTask(${i})">❌</button>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('mgmt-kids-table').innerHTML = db.children.map((c, i) => `
+            <tr>
+                <td>${c.name}</td>
+                <td style="text-align:left;">
+                    <button class="btn-small" style="background:#636e72;" onclick="pickPhoto(${i})">📷</button>
+                    <button class="btn-small btn-danger" onclick="del('children',${i})">🗑️</button>
+                </td>
+            </tr>`).join('');
+        
+        document.getElementById('mgmt-tasks-table').innerHTML = db.tasks.map((t, i) => `<tr><td>${t.name} (${t.type==='morning'?'☀️':'🌙'})</td><td style="text-align:left;"><button class="btn-small btn-danger" onclick="del('tasks',${i})">🗑️</button></td></tr>`).join('');
+        document.getElementById('mgmt-gifts-table').innerHTML = db.gifts.map((g, i) => `<tr><td>${g.name}</td><td style="text-align:left;"><button class="btn-small btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
+        
+        const opts = `<option value="all">לכולם</option>` + db.children.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        document.getElementById('t-target').innerHTML = opts;
+    }
+
+    async function login(i) {
+        if (prompt(`סיסמה ל-${db.children[i].name}:`) === db.children[i].pin) {
+            curIdx = i;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            updateChildUI();
+        }
+    }
+
+    function updateChildUI() {
+        const c = db.children[curIdx];
+        document.getElementById('user-title').innerText = c.name;
+        document.getElementById('points-display').innerText = `⭐ ${c.points}`;
+        document.getElementById('avatar-box').innerHTML = `<img src="${c.img || ''}" class="avatar-main" onerror="this.src='https://via.placeholder.com/60'">`;
+        const type = (new Date().getHours() >= 5 && new Date().getHours() < 15) ? 'morning' : 'evening';
+        document.getElementById('tasks-list').innerHTML = db.tasks
+            .filter(t => t.type === type && (t.target === 'all' || t.target === c.name))
+            .map(t => {
+                const isP = db.pending.some(p => p.childName === c.name && p.taskId === t.id);
+                const isD = c.doneToday && c.doneToday.includes(t.id);
+                return `<div class="item-row ${isD?'done':''} ${isP?'status-pending':''}" onclick="${(!isD && !isP)?`submit(${t.id},'${t.name}',${t.points})`:''}">
+                    <span>${t.name}</span><b>${t.points}⭐</b></div>`;
+            }).join('');
+    }
+
+    async function submit(id, name, pts) {
+        db.pending.push({ taskId: id, taskName: name, childName: db.children[curIdx].name, pts: pts, time: new Date().toLocaleTimeString() });
+        updateChildUI(); await quickSave();
+    }
+
+    async function approveTask(i) {
+        const p = db.pending[i];
+        const child = db.children.find(c => c.name === p.childName);
+        if (child) {
+            child.points += p.pts;
+            if (!child.doneToday) child.doneToday = [];
+            child.doneToday.push(p.taskId);
+        }
+        db.pending.splice(i, 1); renderAll(); await quickSave();
+    }
+
+    function pickPhoto(i) { photoTargetIdx = i; document.getElementById('photo-input').click(); }
+
+    function processPhoto(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        updateLoading(50);
         const reader = new FileReader();
-        reader.onloadend = function() { db.children[uploadIdx].img = reader.result; render(); save(); }
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_SIZE = 100; // גודל קטן מאוד לשמירה על יציבות
+                let width = img.width;
+                let height = img.height;
+                if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } }
+                else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                db.children[photoTargetIdx].img = canvas.toDataURL('image/jpeg', 0.6); // דחיסה ל-60%
+                renderAll();
+                quickSave();
+            };
+            img.src = event.target.result;
+        };
         reader.readAsDataURL(file);
-    };
-
-    function login(i) { if(prompt(`סיסמה ל-${db.children[i].name}:`) === db.children[i].pin) { cur = i; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); updateUI(); } }
-    
-    function updateUI() {
-        const c = db.children[cur]; document.getElementById('u-name').innerText = c.name; document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
-        document.getElementById('u-avatar-top').innerHTML = c.img ? `<img src="${c.img}" style="width:50px;height:50px;border-radius:50%;object-fit:cover">` : `<div style="font-size:2.5rem;">👤</div>`;
-        const h = new Date().getHours(); const type = (h >= 5 && h < 15) ? 'morning' : 'evening';
-        document.getElementById('list-items').innerHTML = db.tasks.filter(t => t.type === type || t.type === 'all').map(t => {
-            const isP = db.pending.some(p => p.child === c.name && p.tid === t.id); const isD = c.doneToday && c.doneToday.includes(t.id);
-            return `<div class="row ${isD?'done':''} ${isP?'pending':''}" onclick="${(!isD && !isP) ? `submitTask(${t.id},'${t.name}',${t.points})` : ''}"><span>${t.name}</span><b>${t.points}⭐</b></div>`;
-        }).join('');
     }
 
-    function submitTask(id, name, pts) { db.pending.push({ tid: id, task: name, child: db.children[cur].name, pts: pts }); updateUI(); save(); }
-    async function sync() { setSync(true); try { const res = await fetch(URL + "?t=" + Date.now()); const data = await res.json(); if (data) { db = data; localStorage.setItem('family_db', JSON.stringify(db)); render(); if(cur !== null) updateUI(); } } catch(e) {} setSync(false); }
-    async function save() { localStorage.setItem('family_db', JSON.stringify(db)); setSync(true); fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) }).then(() => setSync(false)); }
-    function handleAppr(i, isOk) { if(isOk) { const p = db.pending[i]; const child = db.children.find(x => x.name === p.child); if(child) { child.points += p.pts; if(!child.doneToday) child.doneToday = []; child.doneToday.push(p.tid); } } db.pending.splice(i, 1); render(); save(); }
-    function addK() { db.children.push({name: document.getElementById('nk').value, pin: document.getElementById('np').value, img: "", points: 0}); render(); save(); }
-    function addT() { db.tasks.push({id: Date.now(), name: document.getElementById('tn').value, points: parseInt(document.getElementById('tp').value), type: document.getElementById('tt').value}); render(); save(); }
-    function addG() { db.gifts.push({name: document.getElementById('gn').value, cost: parseInt(document.getElementById('gc').value)}); render(); save(); }
-    function del(cat, i) { if(confirm("למחוק?")) { db[cat].splice(i,1); render(); save(); } }
-    function uiToggle(id, btn) { const target = document.getElementById(id); const isHidden = target.classList.contains('hidden'); ['edit-kids', 'edit-tasks', 'edit-gifts'].forEach(boxId => document.getElementById(boxId).classList.add('hidden')); ['btn-kids', 'btn-tasks', 'btn-gifts'].forEach(bId => document.getElementById(bId).classList.remove('btn-mgmt-active')); if (isHidden) { target.classList.remove('hidden'); btn.classList.add('btn-mgmt-active'); } }
-    function showShop() { document.getElementById('tasks-view').classList.add('hidden'); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-items').innerHTML = db.gifts.map(g => `<div class="row" style="cursor:default"><span>${g.name} (<b>${g.cost}</b>⭐)</span>${db.children[cur].points >= g.cost ? `<button onclick="buy('${g.name}',${g.cost})" class="btn-s" style="background:var(--success)">קנה</button>` : `<small>חסר ${g.cost-db.children[cur].points}</small>`}</div>`).join('') || "החנות ריקה"; }
-    function hideShop() { document.getElementById('shop-view').classList.add('hidden'); document.getElementById('tasks-view').classList.remove('hidden'); }
-    function buy(name, cost) { if(confirm(`לקנות ${name}?`)) { db.children[cur].points -= cost; save(); updateUI(); hideShop(); } }
-    function goAdmin() { if(prompt("סיסמה:")==="1234"){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
-    function setSync(s) { document.getElementById('sync-dot').className = s ? 'syncing' : ''; }
+    async function rejectTask(i) { db.pending.splice(i, 1); renderAll(); await quickSave(); }
+    async function quickSave() { updateLoading(50); await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) }); updateLoading(100); setTimeout(()=>updateLoading(0),800); }
+    function showAdmin() { if (prompt("סיסמה:") === "1234") { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); renderAll(); } }
+    function toggleBox(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function del(cat, i) { if(confirm("למחוק?")) { db[cat].splice(i,1); renderAll(); quickSave(); } }
+    function addKid() { db.children.push({name: document.getElementById('new-kid-name').value, pin: document.getElementById('new-kid-pin').value, points: 0, doneToday: [], img: ""}); renderAll(); quickSave(); }
+    function addTask() { db.tasks.push({id: Date.now(), name: document.getElementById('t-name').value, points: parseInt(document.getElementById('t-pts').value), type: document.getElementById('t-type').value, target: document.getElementById('t-target').value}); renderAll(); quickSave(); }
+    function addGift() { db.gifts.push({id: Date.now(), name: document.getElementById('g-name').value, cost: parseInt(document.getElementById('g-cost').value)}); renderAll(); quickSave(); }
+    function updateLoading(p) { document.getElementById('loading-bar').style.width = p + "%"; }
+    async function forceSync() { await init(); }
 
-    render(); sync();
+    init();
 </script>
 </body>
 </html>
