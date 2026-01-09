@@ -3,235 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>משפחת מרקוביץ - v26.8 🚀</title>
-    
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
+    <title>מרקוביץ' v26.9 - אישור הורים ✅</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="מרקוביץ'">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5643/5643900.png">
-    
     <style>
-        :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --afternoon: #f0932b; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; padding: 10px; direction: rtl; margin: 0; color: #2d3436; -webkit-tap-highlight-color: transparent; }
-        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: auto; min-height: 94vh; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
+        :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; --pending: #ffa502; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; margin: 0; direction: rtl; user-select: none; }
+        .card { background: white; padding: 15px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; margin: auto; min-height: 95vh; display: flex; flex-direction: column; box-sizing: border-box; }
         .hidden { display: none !important; }
-        #loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; border-radius:30px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .children-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .child-card { background: #fff; border: 3px solid #eee; border-radius: 20px; padding: 15px; cursor: pointer; transition: transform 0.2s; }
-        .child-card:active { transform: scale(0.95); }
-        .avatar-main { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--p); background: #f9f9f9; }
-        .greeting-msg { font-size: 1.1rem; color: var(--p); font-weight: bold; margin: 10px 0; }
-        .admin-section { background: #f9f9fb; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; text-align: right; }
-        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border-radius: 10px; font-size: 0.85rem; }
-        .mgmt-table td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .time-header { font-size: 1.5rem; margin-bottom: 15px; padding: 15px; border-radius: 20px; color: white; font-weight: bold; }
-        .morning-bg { background: var(--morning); }
-        .evening-bg { background: var(--evening); }
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
-        button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
-        .btn-small { width: auto; padding: 6px 10px; font-size: 0.75rem; }
-        .btn-danger { background: var(--danger); }
-        .item-row { background: white; border: 2px solid #eee; padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .done { opacity: 0.5; background: #f1f2f6; text-decoration: line-through; pointer-events: none; }
-        .version-footer { font-size: 0.7rem; color: #b2bec3; margin-top: auto; padding-top: 20px; }
+        
+        /* עיצוב משימות */
+        .item-row { background: white; border: 2px solid #eee; padding: 12px; border-radius: 18px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .status-pending { border-color: var(--pending); background: #fffaf0; }
+        .status-pending::after { content: "⏳ ממתין לאישור"; font-size: 0.7rem; color: var(--pending); font-weight: bold; }
+        .done { opacity: 0.5; background: #f1f2f6; pointer-events: none; }
+
+        /* בועת התראות להורים */
+        .admin-badge { background: var(--danger); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.8rem; margin-right: 5px; }
+        
+        button { border-radius: 12px; border: none; padding: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-approve { background: var(--success); color: white; padding: 5px 10px; width: auto; }
+        .btn-reject { background: var(--danger); color: white; padding: 5px 10px; width: auto; margin-right: 5px; }
+        
+        #loading-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--p); transition: width 0.3s; width: 0%; z-index: 2000; }
+        .avatar-main { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p); object-fit: cover; }
     </style>
 </head>
 <body>
 
+<div id="loading-bar"></div>
+
 <div class="card">
-    <div id="loading-overlay" class="hidden"><div class="spinner"></div><p id="loading-text">טוען...</p></div>
-
     <div id="login-screen">
-        <h1 style="font-size: 1.8rem;">משפחת מרקוביץ' ✨</h1>
-        <div class="children-grid" id="children-list"></div>
-        <button onclick="syncAndShowAdmin()" style="background:#636e72;">⚙️ ממשק הורים</button>
-    </div>
-
-    <div id="admin-screen" class="hidden">
-        <h2 style="margin:0 0 10px 0;">ניהול v26.8 ⚙️</h2>
-        
-        <div class="admin-section">
-            <h3>📜 היסטוריה (10 אחרונות)</h3>
-            <div style="max-height: 100px; overflow-y: auto;">
-                <table class="mgmt-table"><tbody id="history-body"></tbody></table>
-            </div>
-        </div>
-
-        <div class="admin-section">
-            <h3>👶 ניהול ילדים</h3>
-            <table class="mgmt-table"><tbody id="mgmt-kids"></tbody></table>
-            <button onclick="toggleBox('add-kid-box')" style="background:var(--success);">+ הוסף ילד</button>
-            <div id="add-kid-box" class="hidden">
-                <input type="text" id="new-name" placeholder="שם הילד">
-                <input type="tel" id="new-pin" placeholder="PIN (מספרים)">
-                <button onclick="saveChild()">שמור</button>
-            </div>
-        </div>
-
-        <div class="admin-section">
-            <h3>📝 משימות וצ'ופרים</h3>
-            <button onclick="toggleBox('content-area')" style="background:#ddd; color:#333;">פתח הגדרות תוכן</button>
-            <div id="content-area" class="hidden">
-                <table class="mgmt-table"><tbody id="mgmt-tasks"></tbody></table>
-                <button onclick="toggleBox('add-task-box')">+ משימה</button>
-                <hr>
-                <table class="mgmt-table"><tbody id="mgmt-gifts"></tbody></table>
-                <button onclick="toggleBox('add-gift-box')">+ צ'ופר</button>
-            </div>
-        </div>
-        
-        <button onclick="forceUpdate()" style="background:#ff4757; margin-top:10px;">🔄 רענן גרסה מהענן (תיקון באגים)</button>
-        <button onclick="location.reload()" style="background:#333;">🔙 חזרה</button>
+        <h2 style="margin-top: 20px;">משפחת מרקוביץ' ✨</h2>
+        <div id="children-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px;"></div>
+        <button onclick="showAdmin()" style="background:#636e72; color: white; width: 80%;">⚙️ הגדרות הורים <span id="pending-badge-login" class="admin-badge hidden">0</span></button>
     </div>
 
     <div id="main-screen" class="hidden">
-        <h2 id="user-title" style="margin:0;"></h2>
-        <div id="greeting-display" class="greeting-msg"></div>
-        <div id="avatar-container"></div>
-        <div style="font-size: 2.2rem; margin: 10px 0; background: var(--s); border-radius: 50px; padding: 10px; border: 4px solid #fff;">⭐ <span id="points-display">0</span></div>
-        <div id="tasks-view">
-            <div id="current-time-header" class="time-header"></div>
-            <div id="tasks-list"></div>
-            <button onclick="showShop()" style="background:var(--success); margin-top:20px; height: 60px; border-radius: 20px;">🎁 חנות הצ'ופרים</button>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button onclick="location.reload()" style="background:none; color:#636e72; padding:0;">🔙 יציאה</button>
+            <div id="user-info" style="text-align: left;">
+                <b id="user-title"></b>
+                <div id="points-display" style="color: var(--p); font-size: 1.2rem; font-weight: bold;">⭐ 0</div>
+            </div>
+            <div id="avatar-box"></div>
         </div>
-        <div id="shop-view" class="hidden">
-            <div id="shop-list"></div>
-            <button onclick="hideShop()" style="background:#636e72; margin-top:15px;">🔙 חזרה</button>
-        </div>
-        <button onclick="location.reload()" style="background:none; color:#636e72; margin-top:20px; text-decoration: underline;">⬅️ החלף משתמש</button>
+        
+        <div id="greeting-display" style="font-size: 0.9rem; margin-bottom: 15px; color: #666;"></div>
+
+        <div id="tasks-list"></div>
+        
+        <button onclick="showShop()" style="background:var(--success); color: white; margin-top: 15px; width: 100%; font-size: 1.1rem; height: 50px;">🎁 חנות הצ'ופרים</button>
     </div>
 
-    <div class="version-footer">v26.8 | סנכרון בזמן אמת</div>
+    <div id="admin-screen" class="hidden">
+        <h3>ניהול הורים 🛡️</h3>
+        
+        <div class="admin-section" style="background: #fff3e0; border: 2px solid #ffb74d;">
+            <h4 style="margin: 5px 0;">🔔 משימות הממתינות לאישור</h4>
+            <div id="pending-tasks-list" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+
+        <div class="admin-section">
+            <h4>📊 מצב כוכבים נוכחי</h4>
+            <div id="mgmt-kids-list"></div>
+        </div>
+
+        <button onclick="forceSync()" style="background:var(--p); color:white; width: 100%; margin-top: 10px;">🔄 סנכרן נתונים עכשיו</button>
+        <button onclick="location.reload()" style="background:#333; color:white; width: 100%; margin-top: 10px;">🔙 חזרה לתפריט</button>
+    </div>
 </div>
 
 <script>
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec";
-    const defImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-    let db = { children: [], tasks: [], gifts: [], history: [], adminPin: "1234" };
+    let db = { children: [], tasks: [], history: [], pending: [], gifts: [] };
     let curIdx = null;
 
     async function init() {
-        showLoading(true, "בודק נתונים...");
-        const t = new Date().getTime(); // מניעת Cache
+        updateLoading(30);
         try {
-            const r = await fetch(`${CLOUD_URL}?t=${t}`);
-            const d = await r.json();
-            if (d && d.children) db = d;
-        } catch (e) {}
-        showLoading(false);
-        render();
-    }
-
-    async function forceUpdate() {
-        if(confirm("זה יוריד את הגרסה הכי חדשה מ-GitHub וינקה זיכרון. להמשיך?")) {
-            if ('serviceWorker' in navigator) {
-                const names = await caches.keys();
-                for (let name of names) caches.delete(name);
-            }
-            window.location.href = window.location.pathname + '?v=' + new Date().getTime();
-        }
-    }
-
-    async function save() {
-        showLoading(true, "שומר...");
-        if (db.history.length > 100) db.history = db.history.slice(-100);
-        try {
-            await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) });
-            setTimeout(init, 800);
-        } catch (e) { showLoading(false); }
+            const r = await fetch(`${CLOUD_URL}?t=${Date.now()}`);
+            db = await r.json();
+            if (!db.pending) db.pending = [];
+            render();
+            updateLoading(100);
+        } catch (e) { console.error(e); updateLoading(0); }
     }
 
     function render() {
-        document.getElementById('children-list').innerHTML = db.children.map((c, i) => `<div class="child-card" onclick="checkPin(${i})"><img src="${c.img || defImg}" class="avatar-main"><br><b>${c.name}</b></div>`).join('');
-        document.getElementById('mgmt-kids').innerHTML = db.children.map((c, i) => `<tr><td>${c.name}</td><td><button class="btn-small" onclick="openPhotoPicker(${i})">📷</button> <button class="btn-small btn-danger" onclick="delItem('children',${i})">❌</button></td></tr>`).join('');
-        document.getElementById('mgmt-tasks').innerHTML = db.tasks.map((t, i) => `<tr><td>${t.type==='morning'?'☀️':'🌙'} ${t.name}</td><td><button class="btn-small btn-danger" onclick="delItem('tasks',${i})">🗑️</button></td></tr>`).join('');
-        document.getElementById('mgmt-gifts').innerHTML = db.gifts.map((g, i) => `<tr><td>🎁 ${g.name} (${g.cost})</td><td><button class="btn-small btn-danger" onclick="delItem('gifts',${i})">🗑️</button></td></tr>`).join('');
-        const fil = db.history.slice(-10).reverse();
-        document.getElementById('history-body').innerHTML = fil.map(h => `<tr><td>[${h.time}] ${h.child}: ${h.task}</td></tr>`).join('');
+        // רשימת ילדים בכניסה
+        document.getElementById('children-list').innerHTML = db.children.map((c, i) => `
+            <div onclick="login(${i})" style="cursor:pointer; background:white; border-radius:20px; padding:10px; border:2px solid #eee;">
+                <img src="${c.img || 'https://via.placeholder.com/80'}" class="avatar-main"><br>
+                <b>${c.name}</b>
+            </div>
+        `).join('');
+
+        // התראות להורים
+        const pCount = db.pending.length;
+        const badge = document.getElementById('pending-badge-login');
+        if (pCount > 0) { badge.innerText = pCount; badge.classList.remove('hidden'); }
+        
+        // רשימת משימות לאישור (בממשק הורים)
+        document.getElementById('pending-tasks-list').innerHTML = db.pending.length ? db.pending.map((p, i) => `
+            <div class="item-row">
+                <div style="text-align:right;">
+                    <b>${p.childName}</b><br>
+                    <small>${p.taskName} (${p.pts}⭐)</small>
+                </div>
+                <div>
+                    <button class="btn-approve" onclick="approveTask(${i})">✅</button>
+                    <button class="btn-reject" onclick="rejectTask(${i})">❌</button>
+                </div>
+            </div>
+        `).join('') : "<p>אין משימות ממתינות</p>";
     }
 
-    function getGreeting() {
-        const h = new Date().getHours();
-        if (h >= 5 && h < 12) return "בוקר טוב אלוף! ☀️";
-        if (h >= 12 && h < 17) return "צהריים טובים גיבור! 🌤️";
-        if (h >= 17 && h < 20) return "אחר צהריים נהדרים! 🌤️";
-        return "ערב טוב צדיק! 🌙";
-    }
-
-    function login(i) {
+    async function login(i) {
+        let p = prompt(`סיסמה עבור ${db.children[i].name}:`);
+        if (p !== db.children[i].pin) return alert("סיסמה שגויה");
+        
         curIdx = i;
-        const now = new Date();
-        if(db.children[i].lastLogin !== now.toLocaleDateString()) { db.children[i].doneToday = []; db.children[i].lastLogin = now.toLocaleDateString(); save(); }
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('main-screen').classList.remove('hidden');
-        document.getElementById('user-title').innerText = db.children[i].name;
-        document.getElementById('greeting-display').innerText = getGreeting();
-        document.getElementById('avatar-container').innerHTML = `<img src="${db.children[i].img || defImg}" class="avatar-main">`;
-        const isM = now.getHours() >= 5 && now.getHours() < 15;
-        document.getElementById('current-time-header').innerText = isM ? "משימות בוקר ☀️" : "משימות ערב 🌙";
-        document.getElementById('current-time-header').className = `time-header ${isM ? 'morning-bg' : 'evening-bg'}`;
-        renderTasks(isM ? 'morning' : 'evening');
-        updateScore();
+        
+        updateChildUI();
     }
 
-    async function checkPin(i) {
-        let p = prompt(`מה הסיסמה של ${db.children[i].name}?`);
-        if(p === db.children[i].pin) { await init(); login(i); }
-    }
-
-    function doTask(id, n, p, el) {
-        if(db.children[curIdx].doneToday.includes(id)) return;
-        const now = new Date();
-        db.children[curIdx].doneToday.push(id);
-        db.children[curIdx].points += p;
-        db.history.push({ child: db.children[curIdx].name, task: n, pts: p, fullDate: now.toISOString().split('T')[0], time: now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') });
-        save(); el.classList.add('done'); updateScore();
-    }
-
-    function showShop() {
-        document.getElementById('tasks-view').classList.add('hidden');
-        document.getElementById('shop-view').classList.remove('hidden');
-        const pts = db.children[curIdx].points;
-        document.getElementById('shop-list').innerHTML = db.gifts.filter(g => g.target==='all' || g.target===db.children[curIdx].name).map(g => {
-            const can = pts >= g.cost;
-            return `<div class="item-row"><span><b>${g.name}</b> (${g.cost}⭐)</span>${can ? `<button onclick="buyGift('${g.name}',${g.cost})" style="width:auto; background:var(--success); padding:5px 15px;">קנה</button>` : `<small>חסר ${g.cost-pts}</small>`}</div>`;
-        }).join('') || "החנות ריקה";
-    }
-
-    function buyGift(n, c) {
-        if(confirm(`להחליף ${c} כוכבים ב-${n}?`)) {
-            const now = new Date();
-            db.children[curIdx].points -= c;
-            db.history.push({ child: db.children[curIdx].name, task: "🎁 קנייה: " + n, pts: -c, fullDate: now.toISOString().split('T')[0], time: now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') });
-            save(); alert("תתחדשו!"); location.reload();
-        }
-    }
-
-    function renderTasks(type) {
+    function updateChildUI() {
+        const child = db.children[curIdx];
+        document.getElementById('user-title').innerText = child.name;
+        document.getElementById('points-display').innerText = `⭐ ${child.points}`;
+        document.getElementById('avatar-box').innerHTML = `<img src="${child.img || ''}" class="avatar-main">`;
+        
+        const hour = new Date().getHours();
+        const type = (hour >= 5 && hour < 15) ? 'morning' : 'evening';
+        
         document.getElementById('tasks-list').innerHTML = db.tasks
-            .filter(t => t.type === type && (t.target === 'all' || t.target === db.children[curIdx].name))
+            .filter(t => t.type === type && (t.target === 'all' || t.target === child.name))
             .map(t => {
-                const isD = db.children[curIdx].doneToday.includes(t.id);
-                return `<div class="item-row ${isD?'done':''}" onclick="doTask(${t.id},'${t.name}',${t.points},this)"><span>${t.name} (${t.points}⭐)</span><span>${isD?'✅':'⚪'}</span></div>`;
+                const isPending = db.pending.some(p => p.childName === child.name && p.taskId === t.id);
+                const isDone = child.doneToday && child.doneToday.includes(t.id);
+                
+                return `
+                    <div class="item-row ${isDone ? 'done' : ''} ${isPending ? 'status-pending' : ''}" 
+                         onclick="${(!isDone && !isPending) ? `submitForApproval(${t.id}, '${t.name}', ${t.points})` : ''}">
+                        <span>${t.name}</span>
+                        <b>${t.points}⭐</b>
+                    </div>
+                `;
             }).join('');
     }
 
-    async function syncAndShowAdmin() { if(prompt("סיסמת הורה:") === db.adminPin) { await init(); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
+    async function submitForApproval(id, name, pts) {
+        // עדכון אופטימי - מראה לילד שזה נשלח מיד
+        db.pending.push({
+            taskId: id,
+            taskName: name,
+            childName: db.children[curIdx].name,
+            pts: pts,
+            time: new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'})
+        });
+        
+        updateChildUI(); // רענון המסך של הילד
+        await quickSave();
+    }
+
+    async function approveTask(i) {
+        const p = db.pending[i];
+        const child = db.children.find(c => c.name === p.childName);
+        if (child) {
+            child.points += p.pts;
+            if (!child.doneToday) child.doneToday = [];
+            child.doneToday.push(p.taskId);
+            
+            db.history.push({
+                child: child.name,
+                task: p.taskName,
+                pts: p.pts,
+                time: p.time
+            });
+        }
+        db.pending.splice(i, 1);
+        render();
+        await quickSave();
+    }
+
+    async function rejectTask(i) {
+        db.pending.splice(i, 1);
+        render();
+        await quickSave();
+    }
+
+    async function quickSave() {
+        updateLoading(50);
+        await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) });
+        updateLoading(100);
+        setTimeout(() => updateLoading(0), 1000);
+    }
+
+    function showAdmin() {
+        if (prompt("סיסמת הורה:") === "1234") {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+            render();
+        }
+    }
+
+    function updateLoading(p) { document.getElementById('loading-bar').style.width = p + "%"; }
     function toggleBox(id) { document.getElementById(id).classList.toggle('hidden'); }
-    function hideShop() { document.getElementById('tasks-view').classList.remove('hidden'); document.getElementById('shop-view').classList.add('hidden'); }
-    function updateScore() { document.getElementById('points-display').innerText = db.children[curIdx].points; }
-    function showLoading(s, t) { document.getElementById('loading-text').innerText = t; document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
-    function delItem(t, i) { if(confirm("למחוק?")) { db[t].splice(i,1); save(); render(); } }
-    function openPhotoPicker(i) { curIdx = i; document.getElementById('change-photo-input').click(); }
-    function processPhotoChange(e) { /* פונקציית צילום זהה לקודמת */ }
-    
+    async function forceSync() { await init(); }
+
     init();
 </script>
 </body>
