@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' v27.6</title>
+    <title>מרקוביץ' v27.7</title>
     <style>
         :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; --pending: #ffa502; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); text-align: center; margin: 0; direction: rtl; user-select: none; }
@@ -18,11 +18,10 @@
         .syncing { background: var(--danger) !important; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* מסך כניסה - גריד ילדים */
+        /* מסך כניסה - גריד ילדים ממורכז */
         .children-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; padding: 40px 0; }
         .child-card { cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 140px; }
         
-        /* עיצוב האוואטר - אם אין תמונה מציג טקסט */
         .avatar-circle { 
             width: 100px; height: 100px; border-radius: 50%; 
             border: 4px solid var(--p); background: #fff;
@@ -44,8 +43,9 @@
         input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
         button { background: var(--p); color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-small { width: auto; padding: 5px 12px; font-size: 0.8rem; }
-        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         .mgmt-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: right; }
+        .pin-tag { background: #f1f2f6; padding: 2px 6px; border-radius: 6px; font-family: monospace; color: #2f3542; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -55,7 +55,7 @@
 <div class="card">
     <div class="status-container">
         <div id="sync-status"></div>
-        <div class="version-label">v27.6</div>
+        <div class="version-label">v27.7</div>
     </div>
 
     <div id="login-screen">
@@ -75,7 +75,14 @@
             <button id="tab-btn-tasks" class="admin-tab-btn" onclick="openTab('tasks')">📝 משימות</button>
             <button id="tab-btn-gifts" class="admin-tab-btn" onclick="openTab('gifts')">🎁 מתנות</button>
         </div>
-        <div id="tab-kids" class="tab-content hidden"><table class="mgmt-table" id="mgmt-kids-table"></table><input type="text" id="new-kid-name" placeholder="שם הילד"><input type="tel" id="new-kid-pin" placeholder="PIN" inputmode="numeric"><button onclick="addKid()" style="background:var(--success);">+ הוסף ילד</button></div>
+        <div id="tab-kids" class="tab-content hidden">
+            <table class="mgmt-table" id="mgmt-kids-table"></table>
+            <div style="margin-top:15px; border-top: 1px dashed #ccc; padding-top:10px;">
+                <input type="text" id="new-kid-name" placeholder="שם הילד">
+                <input type="tel" id="new-kid-pin" placeholder="PIN (סיסמה)" inputmode="numeric">
+                <button onclick="addKid()" style="background:var(--success);">+ הוסף ילד</button>
+            </div>
+        </div>
         <div id="tab-tasks" class="tab-content hidden"><table class="mgmt-table" id="mgmt-tasks-table"></table><input type="text" id="t-name" placeholder="משימה"><input type="number" id="t-pts" placeholder="כוכבים"><select id="t-type"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option></select><select id="t-target"></select><button onclick="addTask()" style="background:var(--success);">+ הוסף משימה</button></div>
         <div id="tab-gifts" class="tab-content hidden"><table class="mgmt-table" id="mgmt-gifts-table"></table><input type="text" id="g-name" placeholder="מתנה"><input type="number" id="g-cost" placeholder="מחיר"><button onclick="addGift()" style="background:var(--success);">+ הוסף מתנה</button></div>
         <input type="file" id="photo-input" class="hidden" accept="image/*" onchange="processPhoto(event)">
@@ -114,7 +121,7 @@
     }
 
     function renderAll() {
-        // מסך כניסה - לוגיקת תמונה/שם
+        // מסך כניסה - תמונה או שם
         document.getElementById('children-list').innerHTML = db.children.map((c, i) => `
             <div class="child-card" onclick="login(${i})">
                 <div class="avatar-circle">
@@ -138,7 +145,18 @@
             </div>
         `).join('');
 
-        document.getElementById('mgmt-kids-table').innerHTML = db.children.map((c, i) => `<tr><td><b>${c.name}</b></td><td style="text-align:left;"><button class="btn-small" style="background:#636e72" onclick="pickPhoto(${i})">📷</button> <button class="btn-small btn-danger" onclick="del('children',${i})">🗑️</button></td></tr>`).join('');
+        // טבלת ילדים עם הצגת PIN
+        document.getElementById('mgmt-kids-table').innerHTML = db.children.map((c, i) => `
+            <tr>
+                <td><b>${c.name}</b></td>
+                <td>מפתח: <span class="pin-tag">${c.pin}</span></td>
+                <td style="text-align:left;">
+                    <button class="btn-small" style="background:#636e72" onclick="pickPhoto(${i})">📷</button>
+                    <button class="btn-small btn-danger" onclick="del('children',${i})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+
         document.getElementById('mgmt-tasks-table').innerHTML = db.tasks.map((t, i) => `<tr><td>${t.name}</td><td style="text-align:left;"><button class="btn-small btn-danger" onclick="del('tasks',${i})">🗑️</button></td></tr>`).join('');
         document.getElementById('mgmt-gifts-table').innerHTML = (db.gifts || []).map((g, i) => `<tr><td>${g.name} (${g.cost})</td><td style="text-align:left;"><button class="btn-small btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
         document.getElementById('t-target').innerHTML = `<option value="all">לכולם</option>` + db.children.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
