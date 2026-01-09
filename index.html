@@ -20,7 +20,7 @@
         .done { opacity: 0.4; pointer-events: none; background: #f5f5f5; }
         .admin-section { background: #f8f9fa; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #ddd; text-align: right; }
         .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        .mgmt-table td { padding: 6px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .mgmt-table td { padding: 8px 4px; border-bottom: 1px solid #eee; vertical-align: middle; }
         input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
         button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
         .btn-mgmt-active { background: var(--p-dark) !important; }
@@ -79,25 +79,15 @@
             <div id="edit-kids" class="hidden">
                 <table class="mgmt-table" id="table-kids"></table>
                 <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;">
+                    <b>הוספת ילד חדש:</b>
                     <input id="nk" placeholder="שם הילד">
                     <input id="np" placeholder="סיסמה (PIN)">
-                    <input id="ni" placeholder="קישור לתמונה (URL)">
                     <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
                 </div>
             </div>
-            <div id="edit-tasks" class="hidden">
-                <table class="mgmt-table" id="table-tasks"></table>
-                <input id="tn" placeholder="משימה">
-                <input id="tp" type="number" placeholder="כוכבים">
-                <select id="tt"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option><option value="all">כל היום</option></select>
-                <button onclick="addT()" style="background:var(--success);">+ הוסף משימה</button>
-            </div>
-            <div id="edit-gifts" class="hidden">
-                <table class="mgmt-table" id="table-gifts"></table>
-                <input id="gn" placeholder="צ'ופר">
-                <input id="gc" type="number" placeholder="מחיר">
-                <button onclick="addG()" style="background:var(--success);">+ הוסף צ'ופר</button>
-            </div>
+
+            <div id="edit-tasks" class="hidden"><table class="mgmt-table" id="table-tasks"></table><input id="tn" placeholder="משימה"><input id="tp" type="number" placeholder="כוכבים"><select id="tt"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option><option value="all">כל היום</option></select><button onclick="addT()" style="background:var(--success);">+ הוסף משימה</button></div>
+            <div id="edit-gifts" class="hidden"><table class="mgmt-table" id="table-gifts"></table><input id="gn" placeholder="צ'ופר"><input id="gc" type="number" placeholder="מחיר"><button onclick="addG()" style="background:var(--success);">+ הוסף צ'ופר</button></div>
         </div>
         <button onclick="location.reload()" style="background:#333; margin-top:10px;">🔙 חזרה</button>
     </div>
@@ -109,28 +99,17 @@
     let cur = null;
 
     function render() {
-        // מסך כניסה
-        document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `
-            <div class="k-card" onclick="login(${i})">
-                ${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:35px; padding:12px;">👤</div>`}
-                <b>${c.name}</b>
-            </div>`).join('');
+        document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `<div class="k-card" onclick="login(${i})">${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:35px; padding:12px;">👤</div>`}<b>${c.name}</b></div>`).join('');
+        document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `<div class="row"><small><b>${p.child}</b>: ${p.task}</small><div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button><button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div></div>`).join('') || "אין משימות";
 
-        // אישור משימות
-        document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `
-            <div class="row"><small><b>${p.child}</b>: ${p.task}</small>
-                <div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button>
-                <button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div>
-            </div>`).join('') || "אין משימות";
-
-        // טבלת ניהול ילדים - כולל PIN ותמונה
+        // טבלת ניהול ילדים משופרת
         document.getElementById('table-kids').innerHTML = db.children.map((c,i)=>`
             <tr>
-                <td>${c.img ? `<img src="${c.img}" style="width:30px;height:30px;border-radius:50%">` : '👤'}</td>
+                <td>${c.img ? `<img src="${c.img}" style="width:35px;height:35px;border-radius:50%;object-fit:cover">` : '👤'}</td>
                 <td><b>${c.name}</b><br><small>PIN: ${c.pin}</small></td>
-                <td style="text-align:left">
-                    <button class="btn-s" onclick="delImg(${i})" style="background:#aaa">🗑️🖼️</button>
-                    <button class="btn-s btn-danger" onclick="del('children',${i})">🗑️👤</button>
+                <td style="text-align:left; display:flex; gap:3px;">
+                    <button class="btn-s" onclick="updateImg(${i})" style="background:var(--p)">תמונה 📸</button>
+                    <button class="btn-s btn-danger" onclick="del('children',${i})">🗑️</button>
                 </td>
             </tr>`).join('');
 
@@ -138,56 +117,31 @@
         document.getElementById('table-gifts').innerHTML = db.gifts.map((g,i)=>`<tr><td>${g.name} (${g.cost})</td><td style="text-align:left"><button class="btn-s btn-danger" onclick="del('gifts',${i})">🗑️</button></td></tr>`).join('');
     }
 
-    async function sync() {
-        setSync(true);
-        try {
-            const res = await fetch(URL + "?t=" + Date.now());
-            const data = await res.json();
-            if (data) { db = data; localStorage.setItem('family_db', JSON.stringify(db)); render(); if(cur !== null) updateUI(); }
-        } catch(e) {}
-        setSync(false);
-    }
+    async function sync() { setSync(true); try { const res = await fetch(URL + "?t=" + Date.now()); const data = await res.json(); if (data) { db = data; localStorage.setItem('family_db', JSON.stringify(db)); render(); if(cur !== null) updateUI(); } } catch(e) {} setSync(false); }
+    async function save() { localStorage.setItem('family_db', JSON.stringify(db)); setSync(true); fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) }).then(() => setSync(false)); }
 
-    async function save() {
-        localStorage.setItem('family_db', JSON.stringify(db));
-        setSync(true);
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) }).then(() => setSync(false));
-    }
-
-    function login(i) {
-        if(prompt(`סיסמה ל-${db.children[i].name}:`) === db.children[i].pin) {
-            cur = i; document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-screen').classList.remove('hidden'); updateUI();
-        }
-    }
+    function login(i) { if(prompt(`סיסמה ל-${db.children[i].name}:`) === db.children[i].pin) { cur = i; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); updateUI(); } }
 
     function updateUI() {
-        const c = db.children[cur];
-        document.getElementById('u-name').innerText = c.name;
-        document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
+        const c = db.children[cur]; document.getElementById('u-name').innerText = c.name; document.getElementById('u-pts').innerText = `⭐ ${c.points}`;
         document.getElementById('u-avatar-top').innerHTML = c.img ? `<img src="${c.img}" style="width:50px;height:50px;border-radius:50%;object-fit:cover">` : `<div style="font-size:2.5rem;">👤</div>`;
-        const hour = new Date().getHours();
-        const type = (hour >= 5 && hour < 15) ? 'morning' : 'evening';
-        document.getElementById('list-items').innerHTML = db.tasks
-            .filter(t => t.type === type || t.type === 'all')
-            .map(t => {
-                const isP = db.pending.some(p => p.child === c.name && p.tid === t.id);
-                const isD = c.doneToday && c.doneToday.includes(t.id);
-                return `<div class="row ${isD?'done':''} ${isP?'pending':''}" onclick="${(!isD && !isP)?`submitTask(${t.id},'${t.name}',${t.points})`:''}">
-                    <span>${t.name}</span><b>${t.points}⭐</b></div>`;
-            }).join('');
+        const h = new Date().getHours(); const type = (h >= 5 && h < 15) ? 'morning' : 'evening';
+        document.getElementById('list-items').innerHTML = db.tasks.filter(t => t.type === type || t.type === 'all').map(t => {
+            const isP = db.pending.some(p => p.child === c.name && p.tid === t.id); const isD = c.doneToday && c.doneToday.includes(t.id);
+            return `<div class="row ${isD?'done':''} ${isP?'pending':''}" onclick="${(!isD && !isP)?`submitTask(${t.id},'${t.name}',${t.points})`:''}"><span>${t.name}</span><b>${t.points}⭐</b></div>`;
+        }).join('');
     }
 
-    function submitTask(id, name, pts) { db.pending.push({ tid: id, task: name, child: db.children[cur].name, pts: pts }); updateUI(); save(); }
-
-    function handleAppr(i, isOk) {
-        if(isOk) {
-            const p = db.pending[i]; const child = db.children.find(x => x.name === p.child);
-            if(child) { child.points += p.pts; if(!child.doneToday) child.doneToday = []; child.doneToday.push(p.tid); }
-        }
-        db.pending.splice(i, 1); render(); save();
+    function updateImg(i) { 
+        const link = prompt("הדבק כאן קישור (URL) לתמונה של " + db.children[i].name + ":\n(השאר ריק כדי למחוק תמונה)");
+        db.children[i].img = link || ""; render(); save(); 
     }
 
+    function addK() { db.children.push({name: document.getElementById('nk').value, pin: document.getElementById('np').value, img: "", points: 0}); render(); save(); }
+    function addT() { db.tasks.push({id: Date.now(), name: document.getElementById('tn').value, points: parseInt(document.getElementById('tp').value), type: document.getElementById('tt').value}); render(); save(); }
+    function addG() { db.gifts.push({name: document.getElementById('gn').value, cost: parseInt(document.getElementById('gc').value)}); render(); save(); }
+    function del(cat, i) { if(confirm("למחוק?")) { db[cat].splice(i,1); render(); save(); } }
+    
     function uiToggle(id, btn) {
         const target = document.getElementById(id); const isHidden = target.classList.contains('hidden');
         ['edit-kids', 'edit-tasks', 'edit-gifts'].forEach(boxId => document.getElementById(boxId).classList.add('hidden'));
@@ -195,18 +149,9 @@
         if (isHidden) { target.classList.remove('hidden'); btn.classList.add('btn-mgmt-active'); }
     }
 
-    function addK() { db.children.push({name: document.getElementById('nk').value, pin: document.getElementById('np').value, img: document.getElementById('ni').value, points: 0}); render(); save(); }
-    function delImg(i) { db.children[i].img = ""; render(); save(); }
-    function addT() { db.tasks.push({id: Date.now(), name: document.getElementById('tn').value, points: parseInt(document.getElementById('tp').value), type: document.getElementById('tt').value}); render(); save(); }
-    function addG() { db.gifts.push({name: document.getElementById('gn').value, cost: parseInt(document.getElementById('gc').value)}); render(); save(); }
-    function del(cat, i) { if(confirm("למחוק?")) { db[cat].splice(i,1); render(); save(); } }
-    function showShop() { 
-        document.getElementById('tasks-view').classList.add('hidden'); document.getElementById('shop-view').classList.remove('hidden');
-        document.getElementById('shop-items').innerHTML = db.gifts.map(g => `
-            <div class="row"><span>${g.name} (<b>${g.cost}</b>⭐)</span>
-            ${db.children[cur].points >= g.cost ? `<button onclick="buy('${g.name}',${g.cost})" class="btn-s" style="background:var(--success)">קנה</button>` : `<small>חסר ${g.cost-db.children[cur].points}</small>`}
-            </div>`).join('') || "החנות ריקה";
-    }
+    function submitTask(id, name, pts) { db.pending.push({ tid: id, task: name, child: db.children[cur].name, pts: pts }); updateUI(); save(); }
+    function handleAppr(i, isOk) { if(isOk) { const p = db.pending[i]; const child = db.children.find(x => x.name === p.child); if(child) { child.points += p.pts; if(!child.doneToday) child.doneToday = []; child.doneToday.push(p.tid); } } db.pending.splice(i, 1); render(); save(); }
+    function showShop() { document.getElementById('tasks-view').classList.add('hidden'); document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('shop-items').innerHTML = db.gifts.map(g => `<div class="row"><span>${g.name} (<b>${g.cost}</b>⭐)</span>${db.children[cur].points >= g.cost ? `<button onclick="buy('${g.name}',${g.cost})" class="btn-s" style="background:var(--success)">קנה</button>` : `<small>חסר ${g.cost-db.children[cur].points}</small>`}</div>`).join('') || "החנות ריקה"; }
     function hideShop() { document.getElementById('shop-view').classList.add('hidden'); document.getElementById('tasks-view').classList.remove('hidden'); }
     function buy(name, cost) { if(confirm(`לקנות ${name}?`)) { db.children[cur].points -= cost; save(); updateUI(); hideShop(); } }
     function goAdmin() { if(prompt("סיסמה:")==="1234"){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
