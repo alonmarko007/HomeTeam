@@ -3,62 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>משפחת מרקוביץ - v26.2 ✨</title>
+    <title>משפחת מרקוביץ - v26.3 ✨</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="מרקוביץ'">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5643/5643900.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4a90e2">
+
     <style>
         :root { --p: #4a90e2; --s: #ffeb3b; --morning: #ff9f43; --afternoon: #f0932b; --evening: #a29bfe; --danger: #ff4757; --success: #2ed573; --bg: #f0f7ff; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; padding: 10px; direction: rtl; margin: 0; color: #2d3436; }
-        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: auto; min-height: 92vh; position: relative; display: flex; flex-direction: column; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); text-align: center; padding: 10px; direction: rtl; margin: 0; color: #2d3436; -webkit-tap-highlight-color: transparent; }
+        
+        /* עיצוב המעטפת המרכזית */
+        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: auto; min-height: 94vh; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
         .hidden { display: none !important; }
-        .version-footer { font-size: 0.7rem; color: #b2bec3; margin-top: auto; padding-top: 20px; }
+        
+        /* שכבת טעינה */
         #loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; border-radius:30px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* גריד ילדים */
         .children-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .child-card { background: #fff; border: 3px solid #eee; border-radius: 20px; padding: 15px; cursor: pointer; }
-        .avatar-main { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid var(--p); background: #f9f9f9; }
+        .child-card { background: #fff; border: 3px solid #eee; border-radius: 20px; padding: 15px; cursor: pointer; transition: transform 0.1s; }
+        .child-card:active { transform: scale(0.95); }
+        .avatar-main { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--p); background: #f9f9f9; }
+        
+        /* ממשק ניהול */
         .admin-section { background: #f9f9fb; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; text-align: right; }
         .mgmt-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border-radius: 10px; font-size: 0.85rem; }
         .mgmt-table td { padding: 12px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
         .avatar-sm { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-left: 8px; }
+        
+        /* כותרות וזמנים */
         .time-header { font-size: 1.5rem; margin-bottom: 15px; padding: 15px; border-radius: 20px; color: white; font-weight: bold; }
         .morning-bg { background: var(--morning); }
         .evening-bg { background: var(--evening); }
+        
+        /* כפתורים ואלמנטים */
         input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
         button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
-        .btn-small { width: auto; padding: 6px 10px; font-size: 0.75rem; margin-right: 2px; }
+        .btn-small { width: auto; padding: 6px 10px; font-size: 0.75rem; }
         .btn-danger { background: var(--danger); }
         .item-row { background: white; border: 2px solid #eee; padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .done { opacity: 0.5; background: #f1f2f6; text-decoration: line-through; }
-        .time-tag { background: #eee; color: #666; padding: 2px 6px; border-radius: 6px; font-size: 0.75rem; font-family: monospace; margin-left: 8px; }
+        .done { opacity: 0.5; background: #f1f2f6; text-decoration: line-through; pointer-events: none; }
+        .time-tag { background: #eee; color: #666; padding: 2px 6px; border-radius: 6px; font-size: 0.75rem; font-family: monospace; }
+        .version-footer { font-size: 0.7rem; color: #b2bec3; margin-top: auto; padding-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div id="loading-overlay" class="hidden"><div class="spinner"></div><p id="loading-text">מעדכן...</p></div>
+    <div id="loading-overlay" class="hidden"><div class="spinner"></div><p id="loading-text">מסנכרן ענן...</p></div>
 
     <div id="login-screen">
-        <h1 id="family-greeting">משפחת מרקוביץ ✨</h1>
+        <h1 id="family-greeting" style="font-size: 1.8rem; margin-bottom: 5px;">משפחת מרקוביץ' ✨</h1>
+        <p style="color: #636e72; margin-bottom: 20px;">לוח המשימות הדיגיטלי שלנו</p>
         <div class="children-grid" id="children-list"></div>
-        <button onclick="showAdmin()" style="background:#636e72;">⚙️ ניהול הורים</button>
+        <button onclick="showAdmin()" style="background:#636e72; margin-top: 20px; border-radius: 15px;">⚙️ ממשק הורים</button>
     </div>
 
     <div id="admin-screen" class="hidden">
-        <h2 style="margin-top:0;">מרכז שליטה v26.2 ⚙️</h2>
+        <h2 style="margin:0 0 15px 0;">מרכז שליטה ⚙️</h2>
         
         <div class="admin-section">
-            <h3>📜 דוח פעילות יומי</h3>
+            <h3>📜 פעילות אחרונה</h3>
             <input type="date" id="history-date-picker" onchange="renderHistory()" style="width: auto;">
-            <div style="max-height: 180px; overflow-y: auto; border: 1px solid #eee; margin-top:10px;">
+            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #eee; margin-top:10px; background: white; border-radius: 10px;">
                 <table class="mgmt-table"><tbody id="history-body"></tbody></table>
             </div>
         </div>
 
         <div class="admin-section">
-            <h3>👶 ילדים ותמונות</h3>
+            <h3>👶 ניהול ילדים</h3>
             <table class="mgmt-table"><tbody id="mgmt-kids"></tbody></table>
             <input type="file" id="change-photo-input" class="hidden" accept="image/*" onchange="processPhotoChange(event)">
-            <button onclick="toggleBox('add-kid-box')" style="background:var(--success);">+ הוסף ילד</button>
+            <button onclick="toggleBox('add-kid-box')" style="background:var(--success); margin-top:10px;">+ הוסף ילד חדש</button>
             <div id="add-kid-box" class="hidden">
                 <input type="text" id="new-name" placeholder="שם הילד">
                 <input type="password" id="new-pin" placeholder="סיסמה">
@@ -67,58 +90,63 @@
         </div>
 
         <div class="admin-section">
-            <h3>📝 הגדרות תוכן</h3>
-            <button onclick="toggleBox('tasks-area')" style="background:#ddd; color:#333;">ערוך משימות וצ'ופרים</button>
-            <div id="tasks-area" class="hidden">
-                <h4>משימות</h4>
+            <h3>📝 משימות ופרסים</h3>
+            <button onclick="toggleBox('content-area')" style="background:#ddd; color:#333;">ערוך תוכן</button>
+            <div id="content-area" class="hidden">
+                <h4>רשימת משימות</h4>
                 <table class="mgmt-table"><tbody id="mgmt-tasks"></tbody></table>
-                <button onclick="toggleBox('add-task-box')">+ משימה</button>
+                <button onclick="toggleBox('add-task-box')">+ הוסף משימה</button>
                 <div id="add-task-box" class="hidden">
                     <input type="text" id="task-n" placeholder="שם המשימה">
-                    <input type="number" id="task-p" placeholder="נקודות">
+                    <input type="number" id="task-p" placeholder="כוכבים">
                     <select id="task-t"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option></select>
                     <select id="task-target-select"></select>
-                    <button onclick="addTask()">שמור</button>
+                    <button onclick="addTask()">שמור משימה</button>
                 </div>
                 <hr>
-                <h4>צ'ופרים</h4>
+                <h4>חנות הפרסים</h4>
                 <table class="mgmt-table"><tbody id="mgmt-gifts"></tbody></table>
-                <button onclick="toggleBox('add-gift-box')">+ צ'ופר</button>
+                <button onclick="toggleBox('add-gift-box')">+ הוסף צ'ופר</button>
                 <div id="add-gift-box" class="hidden">
                     <input type="text" id="gift-n" placeholder="שם הצ'ופר">
-                    <input type="number" id="gift-p" placeholder="מחיר">
+                    <input type="number" id="gift-p" placeholder="מחיר כוכבים">
                     <select id="gift-target-select"></select>
-                    <button onclick="addGift()">שמור</button>
+                    <button onclick="addGift()">שמור צ'ופר</button>
                 </div>
             </div>
         </div>
 
-        <button onclick="location.reload()" style="background:#333;">🔙 חזרה לתפריט</button>
+        <button onclick="location.reload()" style="background:#333; margin-top: 10px;">🔙 חזרה לתפריט</button>
     </div>
 
     <div id="main-screen" class="hidden">
-        <h2 id="user-title"></h2>
-        <div id="avatar-container"></div>
-        <div style="font-size: 2.2rem; margin: 10px 0; background: var(--s); border-radius: 50px; padding: 10px;">⭐ <span id="points-display">0</span></div>
+        <h2 id="user-title" style="margin: 0;"></h2>
+        <div id="avatar-container" style="margin-top: 10px;"></div>
+        <div style="font-size: 2.2rem; margin: 15px 0; background: var(--s); border-radius: 50px; padding: 10px; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">⭐ <span id="points-display">0</span></div>
+        
         <div id="tasks-view">
             <div id="current-time-header" class="time-header"></div>
             <div id="tasks-list"></div>
-            <button onclick="showShop()" style="background:var(--success); margin-top:15px; height: 55px; border-radius: 15px;">🎁 חנות הצ'ופרים</button>
+            <button onclick="showShop()" style="background:var(--success); margin-top:20px; height: 60px; border-radius: 20px; font-size: 1.2rem;">🎁 חנות הצ'ופרים</button>
         </div>
+
         <div id="shop-view" class="hidden">
-            <h3>החנות שלכם 🎁</h3>
+            <h3 style="font-size: 1.5rem;">חנות המתנות 🎁</h3>
             <div id="shop-list"></div>
-            <button onclick="hideShop()" style="background:#636e72; margin-top:10px;">🔙 חזרה למשימות</button>
+            <button onclick="hideShop()" style="background:#636e72; margin-top:15px; border-radius: 15px;">🔙 חזרה למשימות</button>
         </div>
-        <button onclick="location.reload()" style="background:#eee; color:black; margin-top:15px;">⬅️ החלף ילד</button>
+        
+        <button onclick="location.reload()" style="background:none; color:#636e72; margin-top:25px; text-decoration: underline; font-weight: bold;">⬅️ החלף משתמש</button>
     </div>
 
-    <div class="version-footer">גרסה: <span id="ver-num"></span> | עדכון אחרון: <span id="ver-date"></span></div>
+    <div class="version-footer">
+        גרסה: <span id="ver-num"></span> | עדכון אחרון: <span id="ver-date"></span>
+    </div>
 </div>
 
 <script>
-    const VERSION = "26.2";
-    const LAST_UPDATE = "09/01/2026 00:45";
+    const VERSION = "26.3";
+    const LAST_UPDATE = "09/01/2026 01:20";
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec";
     const defImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
     
@@ -129,18 +157,19 @@
         document.getElementById('ver-num').innerText = VERSION;
         document.getElementById('ver-date').innerText = LAST_UPDATE;
         document.getElementById('history-date-picker').value = new Date().toISOString().split('T')[0];
-        showLoading(true, "טוען נתונים...");
+        
+        showLoading(true, "מתחבר לענן...");
         try {
             const response = await fetch(CLOUD_URL);
             const data = await response.json();
             if (data && data.children) db = data;
-        } catch (e) { console.log("טוען מקומית"); }
+        } catch (e) { console.warn("טוען מגיבוי מקומי"); }
         showLoading(false);
         render();
     }
 
     async function save() {
-        showLoading(true, "מסנכרן...");
+        showLoading(true, "שומר שינויים...");
         try {
             await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) });
             setTimeout(() => showLoading(false), 800);
@@ -148,10 +177,11 @@
     }
 
     function render() {
-        // רשימת ילדים בכניסה
+        // רשימת ילדים
         document.getElementById('children-list').innerHTML = db.children.map((c, i) => `
             <div class="child-card" onclick="checkPin(${i})">
-                <img src="${c.img || defImg}" class="avatar-main"><br><b>${c.name}</b><br><small>⭐ ${c.points}</small>
+                <img src="${c.img || defImg}" class="avatar-main"><br>
+                <b style="font-size: 1.2rem;">${c.name}</b><br><small>⭐ ${c.points}</small>
             </div>`).join('');
         
         // טבלאות ניהול
@@ -179,11 +209,12 @@
         const d = document.getElementById('history-date-picker').value;
         const fil = db.history.filter(h => h.fullDate === d);
         document.getElementById('history-body').innerHTML = fil.length ? fil.slice().reverse().map(h => `
-            <tr><td><span class="time-tag">${h.time || '--:--'}</span> ${h.child}: ${h.task}</td></tr>`).join('') : '<tr><td>אין פעילות</td></tr>';
+            <tr><td><span class="time-tag">${h.time || '--:--'}</span> <b>${h.child}</b>: ${h.task}</td></tr>`).join('') : '<tr><td style="text-align:center;">אין פעילות</td></tr>';
     }
 
     // פונקציות ילד
-    function checkPin(i) { let p = prompt(`סיסמה:`); if(p === db.children[i].pin) login(i); }
+    function checkPin(i) { let p = prompt(`מה הסיסמה של ${db.children[i].name}?`); if(p === db.children[i].pin) login(i); else if(p !== null) alert("אופס, לא נכון"); }
+    
     function login(i) {
         curIdx = i;
         const now = new Date();
@@ -195,10 +226,12 @@
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('main-screen').classList.remove('hidden');
         document.getElementById('user-title').innerText = "הלוח של " + db.children[i].name;
-        document.getElementById('avatar-container').innerHTML = `<img src="${db.children[i].img || defImg}" class="avatar-main">`;
+        document.getElementById('avatar-container').innerHTML = `<img src="${db.children[i].img || defImg}" class="avatar-main" style="width:110px; height:110px;">`;
+        
         const isM = now.getHours() >= 5 && now.getHours() < 15;
-        document.getElementById('current-time-header').innerText = isM ? "משימות הבוקר שלי ☀️" : "משימות הערב שלי 🌙";
+        document.getElementById('current-time-header').innerText = isM ? "משימות הבוקר ☀️" : "משימות הערב 🌙";
         document.getElementById('current-time-header').className = `time-header ${isM ? 'morning-bg' : 'evening-bg'}`;
+        
         renderTasks(isM ? 'morning' : 'evening');
         updateScore();
     }
@@ -208,7 +241,10 @@
             .filter(t => t.type === type && (t.target === 'all' || t.target === db.children[curIdx].name))
             .map(t => {
                 const isD = db.children[curIdx].doneToday.includes(t.id);
-                return `<div class="item-row ${isD?'done':''}" onclick="doTask(${t.id},'${t.name}',${t.points},this)"><span><b>${t.name}</b> (${t.points}⭐)</span><span>${isD?'✅':'⚪'}</span></div>`;
+                return `<div class="item-row ${isD?'done':''}" onclick="doTask(${t.id},'${t.name}',${t.points},this)">
+                    <span><b>${t.name}</b> (${t.points}⭐)</span>
+                    <span style="font-size: 1.5rem;">${isD?'✅':'⚪'}</span>
+                </div>`;
             }).join('');
     }
 
@@ -233,33 +269,36 @@
             .filter(g => g.target === 'all' || g.target === db.children[curIdx].name)
             .map(g => {
                 const can = pts >= g.cost;
-                return `<div class="item-row"><span><b>${g.name}</b> (${g.cost}⭐)</span>
-                ${can ? `<button onclick="buyGift('${g.name}',${g.cost})" style="width:auto; background:var(--success); padding:5px 15px;">קנה!</button>` : 
-                `<button disabled style="width:auto; background:#ccc; padding:5px 15px;">חסר ${g.cost-pts}</button>`}</div>`;
+                return `<div class="item-row">
+                    <span><b>${g.name}</b><br><small>${g.cost}⭐</small></span>
+                    ${can ? `<button onclick="buyGift('${g.name}',${g.cost})" style="width:auto; background:var(--success); padding:8px 20px; border-radius:10px;">קנה!</button>` : 
+                    `<button disabled style="width:auto; background:#ccc; padding:8px 10px;">חסר ${g.cost-pts}</button>`}
+                </div>`;
             }).join('');
     }
 
     function buyGift(n, c) {
-        if(confirm(`לקנות ${n}?`)) {
+        if(confirm(`להחליף ${c} כוכבים ב-${n}?`)) {
             const now = new Date();
             db.children[curIdx].points -= c;
             db.history.push({
-                id: Date.now().toString(), child: db.children[curIdx].name, task: "🎁 רכישה: " + n, pts: -c, taskId: "buy",
+                id: Date.now().toString(), child: db.children[curIdx].name, task: "🎁 קנייה: " + n, pts: -c, taskId: "buy",
                 fullDate: now.toISOString().split('T')[0],
                 time: now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0')
             });
-            save(); alert("תתחדש!"); location.reload();
+            save(); alert("תתחדשו!"); location.reload();
         }
     }
 
-    // פונקציות ניהול
-    function showAdmin() { if(prompt("סיסמה:") === db.adminPin) { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
+    // ניהול
+    function showAdmin() { if(prompt("סיסמת הורה:") === db.adminPin) { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); render(); } }
     function saveChild() { db.children.push({ name: document.getElementById('new-name').value, pin: document.getElementById('new-pin').value, points: 0, doneToday: [], lastLogin: new Date().toLocaleDateString(), img: null }); save(); render(); toggleBox('add-kid-box'); }
-    function addTask() { db.tasks.push({ id: Date.now(), name: document.getElementById('task-n').value, points: parseInt(document.getElementById('task-p').value), type: document.getElementById('task-t').value, target: document.getElementById('task-target-select').value }); save(); render(); }
-    function addGift() { db.gifts.push({ name: document.getElementById('gift-n').value, cost: parseInt(document.getElementById('gift-p').value), target: document.getElementById('gift-target-select').value }); save(); render(); }
+    function addTask() { db.tasks.push({ id: Date.now(), name: document.getElementById('task-n').value, points: parseInt(document.getElementById('task-p').value), type: document.getElementById('task-t').value, target: document.getElementById('task-target-select').value }); save(); render(); toggleBox('add-task-box'); }
+    function addGift() { db.gifts.push({ name: document.getElementById('gift-n').value, cost: parseInt(document.getElementById('gift-p').value), target: document.getElementById('gift-target-select').value }); save(); render(); toggleBox('add-gift-box'); }
     function delItem(t, i) { if(confirm("למחוק?")) { db[t].splice(i,1); save(); render(); } }
     function openPhotoPicker(i) { curIdx = i; document.getElementById('change-photo-input').click(); }
     function removePhoto(i) { if(confirm("להסיר?")) { db.children[i].img = null; save(); render(); } }
+    
     function processPhotoChange(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -281,6 +320,7 @@
         };
         reader.readAsDataURL(file);
     }
+
     function showLoading(s, t) { document.getElementById('loading-text').innerText = t; document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
     function toggleBox(id) { document.getElementById(id).classList.toggle('hidden'); }
     function updateScore() { document.getElementById('points-display').innerText = db.children[curIdx].points; }
