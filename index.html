@@ -10,23 +10,30 @@
         .card { background: white; max-width: 500px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
         .hidden { display: none !important; }
         
-        /* סנכרון וגרסה */
         #status-bar { position: fixed; top: 10px; left: 10px; display: flex; align-items: center; gap: 5px; z-index: 1000; font-size: 10px; color: #aaa; font-weight: bold; }
         #sync-dot { width: 10px; height: 10px; border-radius: 50%; background: #2ed573; }
-        .syncing { background: var(--pending) !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .syncing { background: var(--pending) !important; }
 
-        /* מסך כניסה - תיקון שם מתחת לתמונה */
+        /* עיצוב כרטיסי ילדים משופר */
         #login-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .kids-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 30px 0; width: 100%; }
+        .kids-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 30px 0; width: 100%; }
+        
         .k-card { 
-            background: #fff; border: 1px solid #eee; border-radius: 20px; 
-            padding: 15px; width: 120px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            background: #fff; border: 1px solid #eee; border-radius: 25px; 
+            width: 130px; height: 130px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: transform 0.2s;
+            position: relative;
         }
-        .avatar-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); margin-bottom: 10px; }
-        .k-name { font-weight: bold; color: #333; font-size: 1.1rem; }
+        .k-card:active { transform: scale(0.95); }
+
+        .avatar-full { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* עיצוב למקרה שאין תמונה - השם במרכז */
+        .no-img-name { 
+            font-size: 1.4rem; font-weight: 800; color: var(--p); 
+            text-align: center; padding: 10px; line-height: 1.2;
+        }
 
         .row { background: white; border: 1px solid #e0e0e0; padding: 14px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .pending { border: 2px solid var(--pending); background: #fffcf5; cursor: default; }
@@ -45,14 +52,14 @@
 
 <div id="status-bar">
     <div id="sync-dot"></div>
-    <span>v27.9</span>
+    <span>v28.0</span>
 </div>
 
 <div class="card">
     <div id="login-screen">
-        <h1 style="color:var(--p); margin:0;">משפחת מרקוביץ' ✨</h1>
+        <h1 style="color:var(--p); margin:0; margin-bottom: 10px;">משפחת מרקוביץ' ✨</h1>
         <div id="kids-list" class="kids-grid"></div>
-        <button onclick="goAdmin()" style="background:none; color: #777; width: auto; text-decoration: underline;">ניהול הורים</button>
+        <button onclick="goAdmin()" style="background:none; color: #bbb; width: auto; text-decoration: underline; font-size: 0.9rem;">ניהול הורים</button>
     </div>
 
     <div id="main-screen" class="hidden">
@@ -77,10 +84,7 @@
 
     <div id="admin-screen" class="hidden">
         <h2 style="margin-top:0;">ניהול מערכת ⚙️</h2>
-        <div class="admin-section" style="border: 2px solid var(--pending);">
-            <h4 style="margin:0 0 10px 0;">🔔 משימות לאישור</h4>
-            <div id="admin-pending"></div>
-        </div>
+        <div class="admin-section" style="border: 2px solid var(--pending);"><h4 style="margin:0 0 10px 0;">🔔 משימות לאישור</h4><div id="admin-pending"></div></div>
         <div class="admin-section">
             <h4 style="margin:0 0 10px 0;">🔧 עריכת תוכן</h4>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
@@ -91,7 +95,6 @@
             <div id="edit-kids" class="hidden">
                 <table class="mgmt-table" id="table-kids"></table>
                 <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;">
-                    <b>הוספת ילד חדש:</b>
                     <input id="nk" placeholder="שם הילד">
                     <input id="np" placeholder="סיסמה (PIN)">
                     <button onclick="addK()" style="background:var(--success);">+ הוסף ילד</button>
@@ -113,11 +116,13 @@
     let uploadIdx = null;
 
     function render() {
-        // רנדור מסך כניסה - שם מתחת לתמונה
+        // רנדור מסך כניסה - לוגיקה חדשה לשם/תמונה
         document.getElementById('kids-list').innerHTML = db.children.map((c, i) => `
             <div class="k-card" onclick="login(${i})">
-                ${c.img ? `<img src="${c.img}" class="avatar-img">` : `<div style="font-size:40px; margin-bottom:10px;">👤</div>`}
-                <span class="k-name">${c.name}</span>
+                ${c.img ? 
+                    `<img src="${c.img}" class="avatar-full">` : 
+                    `<div class="no-img-name">${c.name}</div>`
+                }
             </div>`).join('');
 
         document.getElementById('admin-pending').innerHTML = db.pending.map((p, i) => `<div class="row" style="cursor:default"><small><b>${p.child}</b>: ${p.task}</small><div><button class="btn-s" onclick="handleAppr(${i},true)" style="background:var(--success)">✅</button><button class="btn-s" onclick="handleAppr(${i},false)" style="background:var(--danger); margin-right:5px;">❌</button></div></div>`).join('') || "אין משימות";
