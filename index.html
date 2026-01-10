@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' v31.6 - Streak & Emoji Edition</title>
+    <title>מרקוביץ' v31.7 - Icon Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --morning: #ff9f43; --evening: #a29bfe; --success: #2ed573; --danger: #ff4757; --bg: #f0f7ff; --bonus: #9b59b6; --gold: #f1c40f; }
@@ -11,16 +11,14 @@
         .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 500px; margin: 10px auto; min-height: 95vh; display: flex; flex-direction: column; position: relative; box-sizing: border-box; overflow: hidden; }
         .hidden { display: none !important; }
         
-        /* יעד */
         .goal-section { background: #fff9e6; border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 3px solid var(--success); }
         .goal-container { background: #dfe6e9; border-radius: 50px; height: 35px; width: 100%; position: relative; overflow: hidden; margin-top: 10px; }
         .goal-bar { background: linear-gradient(90deg, #55efc4, #00b894); height: 100%; transition: width 0.8s ease; width: 0%; }
         .goal-text { position: absolute; width: 100%; text-align: center; font-size: 1rem; font-weight: bold; line-height: 35px; top: 0; color: #2d3436; }
 
-        /* גריד ילדים */
         .children-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 15px 0; }
         .child-card { cursor: pointer; width: 100px; position: relative; }
-        .streak-badge { position: absolute; top: -5px; right: 5px; background: linear-gradient(45deg, #ff4757, #ffa502); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
+        .streak-badge { position: absolute; top: -5px; right: 5px; background: linear-gradient(45deg, #ff4757, #ffa502); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 2; }
         .avatar-circle { width: 85px; height: 85px; border-radius: 50%; border: 4px solid var(--p); background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; }
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -34,7 +32,7 @@
         .leaderboard-row { display: flex; justify-content: space-between; padding: 5px 15px; border-bottom: 1px solid #eee; }
 
         button { cursor: pointer; border: none; font-weight: bold; border-radius: 12px; transition: 0.2s; padding: 12px; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
         
         .item-row { background: white; border: 2px solid #eee; padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: right; }
         .admin-nav { display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; }
@@ -57,7 +55,7 @@
         </div>
         <div id="children-list" class="children-grid"></div>
         <button onclick="showAdmin()" style="background:#636e72; color:white; padding:10px 40px; border-radius:20px;">⚙️ ניהול הורים</button>
-        <div class="footer">v31.6 | Powered by Alon Markovich</div>
+        <div class="footer">v31.7 | Powered by Alon Markovich</div>
     </div>
 
     <div id="admin-screen" class="hidden">
@@ -71,7 +69,7 @@
 
         <div id="tab-approve" class="admin-tab">
             <div id="leaderboard-container" class="leaderboard">
-                <div style="font-weight:bold; margin-bottom:5px; color:var(--p);">🏆 טבלת לידרבורד</div>
+                <div style="font-weight:bold; margin-bottom:5px; color:var(--p);">🏆 טבלת מובילים</div>
                 <div id="leaderboard-list"></div>
             </div>
             <button onclick="approveAll()" id="btn-approve-all" style="background:var(--success); color:white; width:100%; margin-bottom:10px;" class="hidden">אישור גורף ✅</button>
@@ -80,27 +78,38 @@
 
         <div id="tab-tasks" class="admin-tab hidden">
             <div id="tasks-manage-list" style="max-height: 200px; overflow-y: auto;"></div>
-            <div style="background:#f9f9f9; padding:10px; border-radius:15px; margin-top:10px;">
+            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-top:10px;">
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="t-emoji" placeholder="🎬" style="width:50px;">
+                    <select id="t-emoji" style="width:70px;">
+                        <option value="✨">✨</option>
+                        <option value="🦷">🦷</option>
+                        <option value="🛌">🛌</option>
+                        <option value="🧺">🧺</option>
+                        <option value="📚">📚</option>
+                        <option value="🍽️">🍽️</option>
+                        <option value="🐕">🐕</option>
+                        <option value="🗑️">🗑️</option>
+                        <option value="🧸">🧸</option>
+                        <option value="🚿">🚿</option>
+                    </select>
                     <input type="text" id="t-name" placeholder="שם המשימה">
                 </div>
                 <input type="number" id="t-pts" placeholder="כמות כוכבים">
                 <select id="t-type">
-                    <option value="morning">☀️ בוקר</option>
-                    <option value="evening">🌙 ערב</option>
-                    <option value="bonus">⚡ בונוס</option>
+                    <option value="morning">☀️ משימת בוקר</option>
+                    <option value="evening">🌙 משימת ערב</option>
+                    <option value="bonus">⚡ בונוס מיוחד</option>
                 </select>
-                <button onclick="addTask()" style="background:var(--success); color:white; width:100%; margin-top:5px;">+ הוסף משימה</button>
+                <button onclick="addTask()" style="background:var(--success); color:white; width:100%; margin-top:5px;">+ הוסף משימה לרשימה</button>
             </div>
         </div>
 
         <div id="tab-rewards" class="admin-tab hidden">
             <div id="rewards-manage-list"></div>
-            <div style="background:#fff2df; padding:10px; border-radius:15px; margin-top:10px;">
-                <input type="text" id="r-name" placeholder="שם הפרס">
+            <div style="background:#fff2df; padding:15px; border-radius:15px; margin-top:10px;">
+                <input type="text" id="r-name" placeholder="שם הפרס (למשל: גלידה)">
                 <input type="number" id="r-pts" placeholder="עלות בכוכבים">
-                <button onclick="addReward()" style="background:var(--gold); color:black; width:100%; margin-top:5px;">+ הוסף לחנות</button>
+                <button onclick="addReward()" style="background:var(--gold); color:black; width:100%; margin-top:5px;">+ הוסף פרס לחנות</button>
             </div>
         </div>
 
@@ -110,12 +119,12 @@
 
         <div id="tab-setup" class="admin-tab hidden">
             <input type="text" id="goal-name-in" placeholder="שם היעד">
-            <input type="number" id="goal-target-in" placeholder="כמות כוכבים">
-            <button onclick="updateGoal()" style="background:var(--p); color:white; width:100%;">עדכן יעד</button>
+            <input type="number" id="goal-target-in" placeholder="כמות כוכבים ליעד">
+            <button onclick="updateGoal()" style="background:var(--p); color:white; width:100%;">עדכן יעד משפחתי</button>
             <button onclick="resetGoalProgress()" style="background:var(--danger); color:white; width:100%; margin-top:20px;">🧨 איפוס התקדמות</button>
         </div>
 
-        <button onclick="location.reload()" style="background:#333; color:white; width:100%; margin-top:20px; padding:15px;">🏠 חזרה</button>
+        <button onclick="location.reload()" style="background:#333; color:white; width:100%; margin-top:20px; padding:15px;">🏠 חזרה למסך הבית</button>
     </div>
 
     <div id="main-screen" class="hidden">
@@ -131,7 +140,7 @@
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
             <button onclick="contribute()" style="background:var(--success); color:white;">תרום ⭐ 1</button>
-            <button onclick="toggleStore()" id="btn-store" style="background:var(--gold); color:black;">🎁 חנות</button>
+            <button onclick="toggleStore()" id="btn-store" style="background:var(--gold); color:black;">🎁 חנות פרסים</button>
         </div>
 
         <div id="child-tasks"></div>
@@ -141,7 +150,7 @@
 
 <script>
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec"; 
-    const DB_KEY = 'MARKO_DB_V31_6';
+    const DB_KEY = 'MARKO_DB_V31_7';
 
     let db = JSON.parse(localStorage.getItem(DB_KEY)) || { 
         children: [
@@ -154,13 +163,12 @@
 
     let curIdx = null;
 
-    // פונקציית עדכון רצף (Streak)
     function updateStreaks() {
         const today = new Date().toLocaleDateString();
         const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
         db.children.forEach(c => {
             if (c.lastDoneDate && c.lastDoneDate !== today && c.lastDoneDate !== yesterday) {
-                c.streak = 0; // רצף נשבר
+                c.streak = 0; 
             }
         });
     }
@@ -272,11 +280,14 @@
         if(tab === 'tasks') {
             document.getElementById('tasks-manage-list').innerHTML = db.tasks.map((t, i) => `<div class="item-row"><span>${t.emoji||'✨'} ${t.name} (${t.points})</span><button onclick="db.tasks.splice(${i},1);save();renderAdmin('tasks');">🗑️</button></div>`).join('');
         }
+        if(tab === 'rewards') {
+            document.getElementById('rewards-manage-list').innerHTML = (db.rewards || []).map((r, i) => `<div class="item-row"><span>🎁 ${r.name} (${r.points})</span><button onclick="db.rewards.splice(${i},1);save();renderAdmin('rewards');">🗑️</button></div>`).join('');
+        }
     }
 
     function addTask() { 
         const n = document.getElementById('t-name').value, p = parseInt(document.getElementById('t-pts').value), t = document.getElementById('t-type').value, e = document.getElementById('t-emoji').value;
-        if(n && p) { db.tasks.push({id:Date.now(), name:n, points:p, type:t, emoji:e}); save(); renderAdmin('tasks'); document.getElementById('t-name').value=''; document.getElementById('t-emoji').value=''; }
+        if(n && p) { db.tasks.push({id:Date.now(), name:n, points:p, type:t, emoji:e}); save(); renderAdmin('tasks'); document.getElementById('t-name').value=''; }
     }
     function addReward() { const n = document.getElementById('r-name').value, p = parseInt(document.getElementById('r-pts').value); if(n && p) { if(!db.rewards) db.rewards = []; db.rewards.push({name:n, points:p}); save(); renderAdmin('rewards'); document.getElementById('r-name').value=''; } }
     function showAdmin() { if (prompt("סיסמה:") === "1234") { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); openTab('approve'); } }
