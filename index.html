@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' v31.15 - Ultimate Stable</title>
+    <title>מרקוביץ' v31.16 - Edit Mode</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --morning: #ff9f43; --evening: #a29bfe; --success: #2ed573; --danger: #ff4757; --bg: #f0f7ff; --bonus: #9b59b6; --gold: #f1c40f; }
@@ -54,7 +54,7 @@
         </div>
         <div id="children-list" class="children-grid"></div>
         <button onclick="showAdmin()" style="background:#636e72; color:white; padding:12px 30px; border-radius:20px; margin-top:20px;">⚙️ ניהול הורים</button>
-        <div class="footer">v31.15 | Stable Unified Version</div>
+        <div class="footer">v31.16 | Edit & Manage</div>
     </div>
 
     <div id="admin-screen" class="hidden">
@@ -100,7 +100,7 @@
 
         <div id="tab-setup" class="admin-tab hidden">
             <input type="text" id="goal-name-in" placeholder="שם היעד המשפחתי">
-            <input type="number" id="goal-target-in" placeholder="יעד כוכבים (למשל 100)">
+            <input type="number" id="goal-target-in" placeholder="יעד כוכבים">
             <button onclick="updateGoal()" class="btn-primary" style="width:100%;">עדכן יעד</button>
         </div>
 
@@ -120,7 +120,7 @@
 </div>
 
 <script>
-    const DB_KEY = 'MARKO_DB_V31_15';
+    const DB_KEY = 'MARKO_DB_V31_16';
     let db = JSON.parse(localStorage.getItem(DB_KEY)) || { 
         children: [{name:"רני", pin:"1234", points:0, doneToday:[]}, {name:"אופיר", pin:"1234", points:0, doneToday:[]}, {name:"אורי", pin:"1234", points:0, doneToday:[]}], 
         tasks: [], rewards: [], pending: [], goal: { name: "פיצה", target: 50, current: 0 } 
@@ -160,14 +160,17 @@
             document.getElementById('tasks-manage-list').innerHTML = db.tasks.map((t, i) => `
                 <div class="item-row">
                     <span>${t.emoji} ${t.name} (${t.points}⭐)</span>
-                    <button onclick="db.tasks.splice(${i},1);save();renderAdmin('tasks');">🗑️</button>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="editTask(${i})" style="background:none;">📝</button>
+                        <button onclick="db.tasks.splice(${i},1);save();renderAdmin('tasks');" style="background:none;">🗑️</button>
+                    </div>
                 </div>`).join('') || "אין משימות";
         }
         if(tab==='rewards') {
             document.getElementById('rewards-manage-list').innerHTML = (db.rewards || []).map((r, i) => `
                 <div class="item-row">
                     <span>🎁 ${r.name} (${r.points}⭐)</span>
-                    <button onclick="db.rewards.splice(${i},1);save();renderAdmin('rewards');">🗑️</button>
+                    <button onclick="db.rewards.splice(${i},1);save();renderAdmin('rewards');" style="background:none;">🗑️</button>
                 </div>`).join('') || "החנות ריקה";
         }
         if(tab==='kids') {
@@ -179,9 +182,23 @@
         }
     }
 
+    // פונקציית העריכה החדשה
+    function editTask(i) {
+        const t = db.tasks[i];
+        const newName = prompt("שנה שם משימה:", t.name);
+        if (newName === null) return; // ביטול
+        const newPts = prompt("שנה מספר כוכבים:", t.points);
+        if (newPts === null) return; // ביטול
+        
+        db.tasks[i].name = newName || t.name;
+        db.tasks[i].points = parseInt(newPts) || 0;
+        save();
+        renderAdmin('tasks');
+    }
+
     function addTask() {
         const n = document.getElementById('t-name').value, p = parseInt(document.getElementById('t-pts').value), t = document.getElementById('t-type').value, e = document.getElementById('t-emoji').value;
-        if(n && p) { db.tasks.push({id:Date.now(), name:n, points:p, type:t, emoji:e}); save(); renderAdmin('tasks'); document.getElementById('t-name').value=''; }
+        if(n && p !== isNaN) { db.tasks.push({id:Date.now(), name:n, points:p, type:t, emoji:e}); save(); renderAdmin('tasks'); document.getElementById('t-name').value=''; }
     }
 
     function addReward() {
@@ -231,7 +248,7 @@
     function buyReward(name, pts) {
         if(confirm(`לקנות ${name}?`)) {
             db.children[curIdx].points -= pts;
-            save(); updateChildUI(); alert("תתחדשו! בקשו מההורים את הפרס.");
+            save(); updateChildUI(); alert("תתחדשו!");
         }
     }
 
