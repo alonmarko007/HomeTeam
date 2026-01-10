@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' v31.18 - Fixed Data</title>
+    <title>מרקוביץ' v31.19</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --morning: #ff9f43; --evening: #a29bfe; --success: #2ed573; --danger: #ff4757; --bg: #f0f7ff; --gold: #f1c40f; }
@@ -17,7 +17,7 @@
         .goal-bar { background: linear-gradient(90deg, #55efc4, #00b894); height: 100%; transition: width 0.8s ease; width: 0%; }
         .goal-text { position: absolute; width: 100%; text-align: center; font-size: 1rem; font-weight: bold; line-height: 35px; top: 0; color: #2d3436; }
 
-        /* Child Score Layout */
+        /* Child Score Bubble */
         .child-header { margin-bottom: 20px; }
         .child-score-bubble { background: #fff; border: 3px solid var(--p); display: inline-block; padding: 10px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(74,144,226,0.15); margin-top: 5px; }
         .score-val { font-size: 2.2rem; font-weight: 900; color: var(--p); line-height: 1; }
@@ -40,7 +40,9 @@
         
         button { cursor: pointer; border: none; font-weight: bold; border-radius: 15px; padding: 12px; transition: 0.2s; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid #ddd; font-size: 1rem; box-sizing: border-box; }
-        .footer { font-size: 0.7rem; color: #bbb; margin-top: auto; padding-top: 10px; }
+        
+        /* Version Stamp */
+        .version-stamp { font-size: 0.7rem; color: #a4b0be; margin-top: auto; padding: 15px 0 5px 0; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -62,6 +64,7 @@
         </div>
         <div id="children-list" class="children-grid"></div>
         <button onclick="showAdmin()" style="background:#636e72; color:white; width:200px; margin-top:20px;">⚙️ ניהול</button>
+        <div class="version-stamp">v31.19 | FIXED DATA STORAGE</div>
     </div>
 
     <div id="admin-screen" class="hidden">
@@ -75,7 +78,7 @@
         <div id="tab-tasks" class="admin-tab hidden">
             <div id="tasks-manage-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px;"></div>
             <div style="background:#f1f1f1; padding:15px; border-radius:20px;">
-                <select id="t-emoji"><option value="👕">👕 להתלבש</option><option value="🦷">🦷 שיניים</option><option value="🚿">🚿 מקלחת</option><option value="📚">📚 לימודים</option><option value="🧸">🧸 משחקים</option><option value="🍽️">🍽️ פינוי</option></select>
+                <select id="t-emoji"><option value="🦷">🦷 שיניים</option><option value="👕">👕 להתלבש</option><option value="🚿">🚿 מקלחת</option><option value="📚">📚 לימודים</option><option value="🧸">🧸 משחקים</option><option value="🍽️">🍽️ פינוי</option></select>
                 <input type="text" id="t-name" placeholder="שם המשימה">
                 <input type="number" id="t-pts" placeholder="כוכבים">
                 <select id="t-type"><option value="morning">☀️ בוקר</option><option value="evening">🌙 ערב</option><option value="both">🌓 תמיד</option></select>
@@ -87,7 +90,7 @@
             <input type="text" id="goal-name-in" placeholder="שם היעד">
             <input type="number" id="goal-target-in" placeholder="יעד כוכבים">
             <button onclick="updateGoal()" style="background:var(--p); color:white; width:100%;">עדכן יעד</button>
-            <button onclick="if(confirm('למחוק הכל?')) {localStorage.clear(); location.reload();}" style="background:var(--danger); color:white; width:100%; margin-top:30px;">מחק הכל ואפס מערכת</button>
+            <div class="version-stamp" style="margin-top:20px;">גרסה סופית למניעת מחיקת נתונים</div>
         </div>
         <button onclick="location.reload()" style="background:#333; color:white; width:100%; margin-top:20px;">🏠 בית</button>
     </div>
@@ -101,15 +104,14 @@
             </div>
         </div>
         <div id="child-tasks"></div>
-        <button onclick="location.reload()" style="background:#eee; width:100%; margin-top:20px;">🏠 חזרה לבחירת ילד</button>
+        <button onclick="location.reload()" style="background:#eee; width:100%; margin-top:20px;">🏠 חזרה</button>
     </div>
 </div>
 
 <script>
-    // מפתח קבוע שלא ישתנה לעולם כדי שהדאטה לא ימחק!
+    // מפתח קבוע - לא לשנות לעולם!
     const FINAL_DB_KEY = 'MARKOVICH_FINAL_DB';
     
-    // נתוני ברירת מחדל אם המערכת ריקה
     const DEFAULT_DATA = {
         children: [{name:"רני", pin:"1234", points:0, doneToday:[]}, {name:"אופיר", pin:"1234", points:0, doneToday:[]}, {name:"אורי", pin:"1234", points:0, doneToday:[]}], 
         tasks: [
@@ -125,17 +127,6 @@
     let curIdx = null;
 
     function save() { localStorage.setItem(FINAL_DB_KEY, JSON.stringify(db)); }
-
-    function playSound(type) {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const g = ctx.createGain();
-            osc.connect(g); g.connect(ctx.destination);
-            if(type==='ding') { osc.frequency.setValueAtTime(880, ctx.currentTime); g.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.1); }
-            else { osc.frequency.setValueAtTime(523, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1046, ctx.currentTime+0.3); g.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.3); }
-        } catch(e){}
-    }
 
     function openTab(id) {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
@@ -186,14 +177,13 @@
     function approve(i) {
         const p = db.pending[i], c = db.children.find(child => child.name === p.childName);
         if(c) { c.points += p.points; db.goal.current += p.points; if(!c.doneToday) c.doneToday = []; c.doneToday.push({ id: p.taskId, date: new Date().toLocaleDateString(), session: (new Date().getHours()<15?'am':'pm') }); }
-        db.pending.splice(i,1); confetti(); playSound('success'); save(); renderAdmin('approve');
+        db.pending.splice(i,1); confetti(); save(); renderAdmin('approve');
     }
 
     function updateChildUI() {
         const c = db.children[curIdx], hr = new Date().getHours(), today = new Date().toLocaleDateString();
         document.getElementById('c-name').innerText = `היי ${c.name}!`;
         document.getElementById('c-pts').innerText = c.points;
-        
         const tasks = db.tasks.filter(t => {
             const sess = hr < 15 ? 'am' : 'pm';
             if (db.pending.some(p => p.childName === c.name && p.taskId === t.id && p.session === sess)) return false;
@@ -202,18 +192,12 @@
             if (t.type === 'evening') return hr >= 12;
             return true;
         });
-
-        document.getElementById('child-tasks').innerHTML = tasks.map(t => `
-            <div class="task-card" onclick="reqTask(${t.id},'${t.name}',${t.points})">
-                <div class="task-icon-box">${t.emoji}</div>
-                <div class="task-info">${t.name}</div>
-                <div class="task-pts">+${t.points} ⭐</div>
-            </div>`).join('') || "<div style='padding:20px; color:#666;'>השלמת את כל המשימות! 🏆</div>";
+        document.getElementById('child-tasks').innerHTML = tasks.map(t => `<div class="task-card" onclick="reqTask(${t.id},'${t.name}',${t.points})"><div class="task-icon-box">${t.emoji}</div><div class="task-info">${t.name}</div><div class="task-pts">+${t.points} ⭐</div></div>`).join('') || "<div style='padding:20px; color:#666;'>השלמת הכל! 🏆</div>";
     }
 
     function reqTask(id, name, pts) {
         db.pending.push({ taskId: id, taskName: name, childName: db.children[curIdx].name, points: pts, session: (new Date().getHours()<15?'am':'pm') });
-        playSound('ding'); save(); updateChildUI(); alert("נשלח לאישור הורים! ✅");
+        save(); updateChildUI(); alert("נשלח לאישור! ✅");
     }
 
     function login(i, skip=false) {
@@ -232,7 +216,6 @@
         document.getElementById('goal-val').innerText = `${db.goal.current} / ${db.goal.target}`;
         document.getElementById('goal-progress').style.width = Math.min((db.goal.current/db.goal.target)*100, 100) + "%";
     }
-
     renderHome();
 </script>
 </body>
