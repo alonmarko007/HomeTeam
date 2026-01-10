@@ -3,29 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>מרקוביץ' v31.12 - Sounds & Dressing Up</title>
+    <title>מרקוביץ' v31.13 - Navigation Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --morning: #ff9f43; --evening: #a29bfe; --success: #2ed573; --danger: #ff4757; --bg: #f0f7ff; --bonus: #9b59b6; --gold: #f1c40f; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); text-align: center; margin: 0; direction: rtl; user-select: none; }
-        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 500px; margin: 10px auto; min-height: 95vh; display: flex; flex-direction: column; position: relative; box-sizing: border-box; overflow: hidden; }
+        .card { background: white; padding: 20px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 500px; margin: 10px auto; min-height: 95vh; display: flex; flex-direction: column; position: relative; box-sizing: border-box; }
         .hidden { display: none !important; }
         
+        /* Goal Section */
         .goal-section { background: #fff9e6; border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 3px solid var(--success); }
         .goal-container { background: #dfe6e9; border-radius: 50px; height: 35px; width: 100%; position: relative; overflow: hidden; margin-top: 10px; }
         .goal-bar { background: linear-gradient(90deg, #55efc4, #00b894); height: 100%; transition: width 0.8s ease; width: 0%; }
         .goal-text { position: absolute; width: 100%; text-align: center; font-size: 1rem; font-weight: bold; line-height: 35px; top: 0; color: #2d3436; }
 
+        /* Children Grid */
         .children-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 15px 0; }
-        .child-card { cursor: pointer; width: 100px; position: relative; }
+        .child-card { cursor: pointer; width: 100px; }
         .avatar-circle { width: 85px; height: 85px; border-radius: 50%; border: 4px solid var(--p); background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; }
         
-        .item-row { background: white; border: 2px solid #eee; padding: 12px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: right; }
-        .admin-nav { display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; }
-        .admin-nav button { flex: 1; font-size: 0.75rem; background: #eee; padding: 8px 5px; white-space: nowrap; }
+        /* Admin Navigation */
+        .admin-nav { display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .admin-nav button { flex: 1; font-size: 0.75rem; background: #eee; padding: 10px 5px; border-radius: 12px; border: none; cursor: pointer; white-space: nowrap; }
         .admin-nav button.active { background: var(--p); color: white; }
         
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
+        /* Rows and UI */
+        .item-row { background: #f8f9fa; border: 2px solid #eee; padding: 12px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: right; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; }
         button { cursor: pointer; border: none; font-weight: bold; border-radius: 12px; transition: 0.2s; padding: 12px; }
         .footer { font-size: 0.85rem; color: #b2bec3; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; }
     </style>
@@ -48,111 +52,138 @@
             </div>
         </div>
         <div id="children-list" class="children-grid"></div>
-        <button onclick="showAdmin()" style="background:#636e72; color:white; padding:10px 40px; border-radius:20px;">⚙️ ניהול הורים</button>
-        <div class="footer">v31.12 | Sound Effects Active</div>
+        <button onclick="showAdmin()" style="background:#636e72; color:white; padding:10px 40px; border-radius:20px; margin-top:20px;">⚙️ ניהול הורים</button>
+        <div class="footer">v31.13 | Stable Navigation</div>
     </div>
 
     <div id="admin-screen" class="hidden">
         <div class="admin-nav">
-            <button id="n-app" onclick="openTab('approve')">אישורים</button>
-            <button id="n-tasks" onclick="openTab('tasks')">משימות</button>
-            <button id="n-rewards" onclick="openTab('rewards')">חנות</button>
-            <button id="n-kids" onclick="openTab('kids')">ילדים</button>
-            <button id="n-set" onclick="openTab('setup')">הגדרות</button>
+            <button id="nav-approve" onclick="openTab('approve')" class="active">אישורים</button>
+            <button id="nav-tasks" onclick="openTab('tasks')">משימות</button>
+            <button id="nav-rewards" onclick="openTab('rewards')">חנות</button>
+            <button id="nav-kids" onclick="openTab('kids')">ילדים</button>
+            <button id="nav-setup" onclick="openTab('setup')">הגדרות</button>
+        </div>
+
+        <div id="tab-approve" class="admin-tab">
+            <div id="pending-list"></div>
         </div>
 
         <div id="tab-tasks" class="admin-tab hidden">
-            <div id="tasks-manage-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; border-radius: 15px; padding: 5px;"></div>
+            <div id="tasks-manage-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px;"></div>
             <div style="background:#f9f9f9; padding:15px; border-radius:15px;">
                 <div style="display:flex; gap:5px;">
-                    <select id="t-emoji" style="width:100px; font-size:1.2rem;">
+                    <select id="t-emoji" style="width:100px;">
                         <option value="👕">👕 להתלבש</option>
                         <option value="🦷">🦷 שיניים</option>
                         <option value="🚿">🚿 מקלחת</option>
                         <option value="🧸">🧸 סידור משחקים</option>
-                        <option value="🧺">🧺 כביסה</option>
                         <option value="📚">📚 לימודים</option>
                         <option value="🍽️">🍽️ פינוי שולחן</option>
-                        <option value="🍎">🍎 אוכל בריא</option>
-                        <option value="🐶">🐶 טיפול בחיה</option>
-                        <option value="🗑️">🗑️ זבל</option>
-                        <option value="🧼">🧼 ניקיון</option>
+                        <option value="🐶">🐶 חיות</option>
                         <option value="✨">✨ כללי</option>
                     </select>
                     <input type="text" id="t-name" placeholder="שם המשימה">
                 </div>
-                <input type="number" id="t-pts" placeholder="כמות כוכבים">
+                <input type="number" id="t-pts" placeholder="כוכבים">
                 <select id="t-type">
                     <option value="morning">☀️ בוקר</option>
                     <option value="evening">🌙 ערב</option>
                     <option value="both">🌓 בוקר וערב</option>
                     <option value="bonus">⚡ בונוס</option>
                 </select>
-                <button onclick="addTask()" style="background:var(--success); color:white; width:100%; margin-top:5px;">שמור משימה ✅</button>
+                <button onclick="addTask()" style="background:var(--success); color:white; width:100%; margin-top:5px;">הוסף משימה +</button>
             </div>
         </div>
 
-        <div id="tab-approve" class="admin-tab"><div id="pending-list"></div></div>
-        <div id="tab-rewards" class="admin-tab hidden"><div id="rewards-manage-list"></div></div>
-        <div id="tab-kids" class="admin-tab hidden"><div id="kids-manage-list"></div></div>
-        <div id="tab-setup" class="admin-tab hidden"><button onclick="updateGoal()" style="background:var(--p); color:white; width:100%;">עדכן יעד</button></div>
+        <div id="tab-rewards" class="admin-tab hidden">
+            <div id="rewards-manage-list"></div>
+            <input type="text" id="r-name" placeholder="שם הפרס">
+            <input type="number" id="r-pts" placeholder="עלות">
+            <button onclick="addReward()" style="background:var(--gold); width:100%;">הוסף פרס +</button>
+        </div>
 
-        <button onclick="location.reload()" style="background:#333; color:white; width:100%; margin-top:20px;">🏠 חזרה לבית</button>
+        <div id="tab-kids" class="admin-tab hidden"><div id="kids-manage-list"></div></div>
+
+        <div id="tab-setup" class="admin-tab hidden">
+            <input type="text" id="goal-name-in" placeholder="שם היעד">
+            <input type="number" id="goal-target-in" placeholder="כמות כוכבים">
+            <button onclick="updateGoal()" style="background:var(--p); color:white; width:100%;">עדכן יעד</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:var(--danger); color:white; width:100%; margin-top:20px;">מחק הכל ואפס מערכת</button>
+        </div>
+
+        <button onclick="location.reload()" style="background:#333; color:white; width:100%; margin-top:20px;">🏠 חזרה לדף הבית</button>
     </div>
 
     <div id="main-screen" class="hidden">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button id="btn-home-child" onclick="location.reload()" style="background:#eee; padding:8px 15px;">🏠</button>
-            <div><b id="c-name"></b> <span id="c-pts" style="color:var(--p); font-weight:bold;"></span></div>
-            <div id="c-avatar-box" class="avatar-circle" style="width:45px; height:45px; margin:0;"></div>
+            <div><b id="c-name" style="font-size:1.2rem;"></b> <span id="c-pts" style="color:var(--p); font-weight:bold; font-size:1.2rem; margin-right:10px;"></span></div>
+            <div id="c-avatar-box" class="avatar-circle" style="width:50px; height:50px; margin:0;"></div>
         </div>
         <div id="child-tasks"></div>
-        <button onclick="toggleStore()" id="btn-store" style="background:var(--gold); width:100%; margin-top:10px;">🎁 חנות</button>
+        <button onclick="toggleStore()" id="btn-store" style="background:var(--gold); width:100%; margin-top:15px;">🎁 חנות פרסים</button>
         <div id="child-store" class="hidden"></div>
     </div>
 </div>
 
 <script>
-    const DB_KEY = 'MARKO_DB_V31_12';
-    let db = JSON.parse(localStorage.getItem(DB_KEY)) || { children: [{name:"רני", pin:"1234", points:0, img:"", streak:0, lastDoneDate:""}, {name:"אופיר", pin:"1234", points:0, img:"", streak:0, lastDoneDate:""}, {name:"אורי", pin:"1234", points:0, img:"", streak:0, lastDoneDate:""}], tasks: [], rewards: [], pending: [], goal: { name: "פיצה", target: 50, current: 0 } };
+    const DB_KEY = 'MARKO_DB_V31_13';
+    let db = JSON.parse(localStorage.getItem(DB_KEY)) || { 
+        children: [{name:"רני", pin:"1234", points:0, img:"", streak:0, lastDoneDate:"", doneToday:[]}, {name:"אופיר", pin:"1234", points:0, img:"", streak:0, lastDoneDate:"", doneToday:[]}, {name:"אורי", pin:"1234", points:0, img:"", streak:0, lastDoneDate:"", doneToday:[]}], 
+        tasks: [], rewards: [], pending: [], goal: { name: "פיצה", target: 50, current: 0 } 
+    };
     let curIdx = null;
-
-    // פונקציות סאונד
-    function playSound(type) {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if(type === 'ding') { // צליל בקשה
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
-        } else if(type === 'success') { // צליל אישור
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.4);
-        }
-    }
 
     function save() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
+    function playSound(type) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if(type === 'ding') { osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
+            else { osc.frequency.setValueAtTime(523, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1046, audioCtx.currentTime + 0.3); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
+        } catch(e) {}
+    }
+
+    function openTab(tabId) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+        document.getElementById('nav-' + tabId).classList.add('active');
+        renderAdmin(tabId);
+    }
+
     function renderAdmin(tab) {
+        if(tab === 'approve') {
+            document.getElementById('pending-list').innerHTML = db.pending.map((p, i) => `
+                <div class="item-row">
+                    <span><b>${p.childName}</b>: ${p.taskName}</span>
+                    <button onclick="approve(${i})" style="background:var(--success); color:white;">✅ אשור</button>
+                </div>`).join('') || "אין בקשות ממתינות";
+        }
         if(tab === 'tasks') {
             document.getElementById('tasks-manage-list').innerHTML = db.tasks.map((t, i) => `
                 <div class="item-row">
-                    <span>${t.emoji} <b>${t.name}</b> (${t.points}⭐)</span>
-                    <button onclick="db.tasks.splice(${i},1);save();renderAdmin('tasks');" style="background:none;">🗑️</button>
+                    <span>${t.emoji} ${t.name} (${t.points}⭐)</span>
+                    <button onclick="db.tasks.splice(${i},1);save();renderAdmin('tasks');">🗑️</button>
                 </div>`).join('') || "אין משימות";
         }
-        if(tab === 'approve') {
-            document.getElementById('pending-list').innerHTML = db.pending.map((p, i) => `<div class="item-row"><span><b>${p.childName}</b>: ${p.taskName}</span><button onclick="approve(${i})" style="background:var(--success); color:white;">✅</button></div>`).join('') || "אין בקשות";
+        if(tab === 'kids') {
+            document.getElementById('kids-manage-list').innerHTML = db.children.map((c, i) => `
+                <div class="item-row">
+                    <b>${c.name} (${c.points}⭐)</b>
+                    <button onclick="parentPreview(${i})" style="background:#636e72; color:white;">👁️ צפה</button>
+                </div>`).join('');
+        }
+        if(tab === 'rewards') {
+            document.getElementById('rewards-manage-list').innerHTML = db.rewards.map((r, i) => `
+                <div class="item-row">
+                    <span>🎁 ${r.name} (${r.points}⭐)</span>
+                    <button onclick="db.rewards.splice(${i},1);save();renderAdmin('rewards');">🗑️</button>
+                </div>`).join('');
         }
     }
 
@@ -161,13 +192,17 @@
         if(n && p) { db.tasks.push({id:Date.now(), name:n, points:p, type:t, emoji:e}); save(); renderAdmin('tasks'); document.getElementById('t-name').value=''; }
     }
 
+    function addReward() {
+        const n = document.getElementById('r-name').value, p = parseInt(document.getElementById('r-pts').value);
+        if(n && p) { db.rewards.push({name:n, points:p}); save(); renderAdmin('rewards'); document.getElementById('r-name').value=''; }
+    }
+
     function approve(i) {
         const p = db.pending[i], c = db.children.find(child => child.name === p.childName);
         if(c) {
             c.points += p.points;
-            const today = new Date().toLocaleDateString();
-            if (!c.doneToday) c.doneToday = [];
-            c.doneToday.push({ id: p.taskId, date: today, session: p.session });
+            if(!c.doneToday) c.doneToday = [];
+            c.doneToday.push({ id: p.taskId, date: new Date().toLocaleDateString(), session: p.session });
         }
         db.pending.splice(i, 1); confetti(); playSound('success'); save(); renderAdmin('approve');
     }
@@ -176,7 +211,8 @@
         const c = db.children[curIdx], hr = new Date().getHours(), today = new Date().toLocaleDateString();
         document.getElementById('c-name').innerText = c.name;
         document.getElementById('c-pts').innerText = `⭐ ${c.points}`;
-        document.getElementById('c-avatar-box').innerHTML = c.img ? `<img src="${c.img}" style="width:100%;border-radius:50%">` : `<span>👤</span>`;
+        document.getElementById('c-avatar-box').innerHTML = `<span>👤</span>`;
+        
         const tasks = db.tasks.filter(t => {
             const sess = hr < 15 ? 'am' : 'pm';
             if (db.pending.some(p => p.childName === c.name && p.taskId === t.id && p.session === sess)) return false;
@@ -185,29 +221,40 @@
             if (t.type === 'evening') return hr >= 12;
             return true;
         });
-        document.getElementById('child-tasks').innerHTML = tasks.map(t => `<div class="item-row" onclick="reqTask(${t.id},'${t.name}',${t.points})"><span>${t.emoji} ${t.name}</span><b>${t.points}⭐</b></div>`).join('') || "סיימת הכל! 🏆";
+        
+        document.getElementById('child-tasks').innerHTML = tasks.map(t => `
+            <div class="item-row" onclick="reqTask(${t.id},'${t.name}',${t.points})">
+                <span>${t.emoji} ${t.name}</span>
+                <b style="color:var(--p)">${t.points}⭐</b>
+            </div>`).join('') || "אין משימות כרגע 🏆";
     }
 
-    function reqTask(id, name, pts) { 
-        db.pending.push({ taskId: id, taskName: name, childName: db.children[curIdx].name, points: pts, session: (new Date().getHours() < 15 ? 'am' : 'pm') }); 
-        playSound('ding');
-        save(); updateChildUI(); alert("נשלח לאישור להורים!"); 
+    function reqTask(id, name, pts) {
+        db.pending.push({ taskId: id, taskName: name, childName: db.children[curIdx].name, points: pts, session: (new Date().getHours() < 15 ? 'am' : 'pm') });
+        playSound('ding'); save(); updateChildUI(); alert("נשלח לאישור להורים!");
     }
 
     function renderHome() {
-        document.getElementById('children-list').innerHTML = db.children.map((c, i) => `<div class="child-card" onclick="login(${i})"><div class="avatar-circle" style="width:85px; height:85px; margin:0 auto; overflow:hidden; border-radius:50%; border:4px solid var(--p); background:white;">${c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span style="font-size:2.5rem; line-height:85px;">👤</span>`}</div><div style="font-weight:bold; margin-top:10px;">${c.name}</div></div>`).join('');
+        document.getElementById('children-list').innerHTML = db.children.map((c, i) => `
+            <div class="child-card" onclick="login(${i})">
+                <div class="avatar-circle"><span>👤</span></div>
+                <div style="font-weight:bold; margin-top:10px;">${c.name}</div>
+            </div>`).join('');
         document.getElementById('goal-name-label').innerText = `היעד: ${db.goal.name}`;
         document.getElementById('goal-progress').style.width = Math.min((db.goal.current/db.goal.target)*100, 100) + "%";
         document.getElementById('goal-val').innerText = `${db.goal.current} / ${db.goal.target}`;
     }
 
-    function login(i, skip = false) { if(!skip) { const p = prompt("סיסמה:"); if(p !== db.children[i].pin) return; } curIdx = i; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); updateChildUI(); }
-    function showAdmin() { if(prompt("סיסמה:") === "1234") { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); openTab('approve'); } }
-    function openTab(id) { document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden')); document.getElementById('tab-' + id).classList.remove('hidden'); renderAdmin(id); }
+    function login(i, skip = false) {
+        if(!skip) { const p = prompt("סיסמה:"); if(p !== db.children[i].pin) return; }
+        curIdx = i; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); updateChildUI();
+    }
+
+    function showAdmin() { if(prompt("סיסמת הורה:") === "1234") { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); openTab('approve'); } }
     function parentPreview(i) { document.getElementById('preview-mode').classList.remove('hidden'); login(i, true); }
     function backToAdmin() { document.getElementById('preview-mode').classList.add('hidden'); document.getElementById('main-screen').classList.add('hidden'); document.getElementById('admin-screen').classList.remove('hidden'); }
     function toggleStore() { document.getElementById('child-store').classList.toggle('hidden'); document.getElementById('child-tasks').classList.toggle('hidden'); }
-    function updateGoal() { db.goal.name = prompt("שם היעד:", db.goal.name) || db.goal.name; db.goal.target = parseInt(prompt("כמות כוכבים ליעד:", db.goal.target)) || db.goal.target; save(); renderHome(); }
+    function updateGoal() { db.goal.name = document.getElementById('goal-name-in').value || db.goal.name; db.goal.target = parseInt(document.getElementById('goal-target-in').value) || db.goal.target; save(); renderHome(); alert("היעד עודכן!"); }
 
     renderHome();
 </script>
