@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v34.0</title>
+    <title>Markovich PRO v34.1</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,14 +20,13 @@
         .app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: white; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         
-        .version-tag { font-size: 0.7rem; color: #ccc; position: absolute; top: 10px; left: 10px; }
         .goal-card { background: #fff9e6; margin: 15px; padding: 20px; border-radius: 25px; border: 2px solid #fcebb6; cursor: pointer; }
         .progress-container { background: #eee; height: 26px; border-radius: 13px; overflow: hidden; position: relative; margin-top: 10px; }
         .progress-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); height: 100%; width: 0%; transition: width 1s ease; }
         .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.9rem; font-weight: 900; line-height: 26px; top: 0; color: #333; }
 
         .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 10px 20px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-        .pts-display { font-size: 5rem; font-weight: 900; color: var(--p); margin: 10px 0; display: block; }
+        .pts-display { font-size: 5.5rem; font-weight: 900; color: var(--p); margin: 10px 0; display: block; }
         .avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; background: white; margin: 0 auto 8px; }
         
         .admin-nav { display: flex; background: #f1f2f6; margin: 10px; border-radius: 15px; padding: 5px; gap: 4px; overflow-x: auto; }
@@ -39,18 +38,19 @@
         .filter-tabs { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
         .tab-btn { border: 1px solid #ddd; background: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--p); color: white; }
+        
+        .footer-info { margin-top: auto; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 0.8rem; color: #bbb; }
     </style>
 </head>
 <body>
 
 <div class="app">
-    <div class="version-tag">v34.0</div>
     <div id="parent-banner" class="preview-banner hidden">
         <span>👁️ מצב צפייה</span>
         <button onclick="exitPreview()" style="background:var(--danger); border:none; color:white; border-radius:8px; padding:5px 10px;">יציאה</button>
     </div>
 
-    <div id="screen-lobby">
+    <div id="screen-lobby" style="flex-grow: 1; display: flex; flex-direction: column;">
         <h1 style="margin-top:40px;">Markovich ✨</h1>
         <div class="goal-card" onclick="enterAdmin()">
             <b id="lb-goal-n">היעד המשפחתי</b>
@@ -60,7 +60,12 @@
             </div>
         </div>
         <div id="lb-kids" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; padding:20px;"></div>
-        <button onclick="enterAdmin()" style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer;">⚙️ ניהול הורים</button>
+        
+        <div class="footer-info">
+            <span>v34.1</span>
+            <span>|</span>
+            <button onclick="enterAdmin()" style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer; font-size: 0.9rem;">⚙️ ניהול הורים</button>
+        </div>
     </div>
 
     <div id="screen-child" class="hidden">
@@ -103,7 +108,7 @@
 </div>
 
 <script>
-    const DB_KEY = 'MARKOVICH_FINAL_V34';
+    const DB_KEY = 'MARKOVICH_FINAL_V341';
     const AUDIO_SUCCESS = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
 
     const DEFAULTS = {
@@ -238,7 +243,7 @@
                     <button onclick="db['${t}'].splice(${i},1);save();setTab('${t}')" style="color:red; background:none; border:none;">🗑️</button>
                 </div>`).join('') + `<button onclick="addItem('${t}')" class="btn-main" style="background:var(--success)">+ הוסף</button>`;
         } else if (t === 'config') {
-            body.innerHTML = `<label>יעד:</label><input id="c-gn" value="${db.goal.name}"><br><label>נקודות:</label><input id="c-gt" type="number" value="${db.goal.target}"><button onclick="saveConfig()" class="btn-main">שמור</button>`;
+            body.innerHTML = `<label>יעד משפחתי:</label><input id="c-gn" value="${db.goal.name}" style="padding:10px; border-radius:10px; border:1px solid #ddd; width:80%; margin:10px;"><br><label>נקודות ליעד:</label><input id="c-gt" type="number" value="${db.goal.target}" style="padding:10px; border-radius:10px; border:1px solid #ddd; width:80%; margin:10px;"><button onclick="saveConfig()" class="btn-main">שמור הגדרות</button>`;
         }
     }
 
@@ -251,7 +256,7 @@
     }
 
     function editKid(i) {
-        const n = prompt("שם:", db.children[i].name);
+        const n = prompt("שם הילד:", db.children[i].name);
         const e = prompt("אמוג'י:", db.children[i].emoji || "👤");
         if(n) { db.children[i].name = n; db.children[i].emoji = e; save(); setTab('kids'); }
     }
@@ -270,7 +275,7 @@
     function saveConfig() {
         db.goal.name = document.getElementById('c-gn').value;
         db.goal.target = parseInt(document.getElementById('c-gt').value);
-        save(); alert("נשמר בהצלחה");
+        save(); alert("ההגדרות נשמרו!");
     }
 
     function showScreen(id) {
@@ -296,7 +301,7 @@
     }
 
     function openDonate() {
-        const amt = parseInt(prompt("כמה כוכבים לתרום ליעד?"));
+        const amt = parseInt(prompt("כמה כוכבים לתרום ליעד המשפחתי?"));
         if(amt > 0 && db.children[activeKidIdx].points >= amt) {
             db.children[activeKidIdx].points -= amt;
             db.goal.current += amt;
