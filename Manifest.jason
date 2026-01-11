@@ -1,28 +1,15 @@
 {
-  "short_name": "מרקוביץ'",
-  "name": "משפחת מרקוביץ' - ניהול כוכבים",
-  "description": "אפליקציית ניהול כוכבים ומשימות למשפחת מרקוביץ'",
-  "lang": "he",
-  "dir": "rtl",
+  "name": "Markovich Family",
+  "short_name": "Markovich",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a90e2",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3048/3048122.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "src": "https://img.icons8.com/fluency/240/star--v1.png",
+      "sizes": "240x240",
+      "type": "image/png"
     }
-]
-
-      "src": "https://cdn-icons-png.flaticon.com/512/5643/5643900.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
-    }
-  ],
-  "start_url": "index.html?v=26.8",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f0f7ff",
-  "theme_color": "#4a90e2",
-  "scope": "./"
+  ]
 }
