@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich Family SuperApp</title>
+    <title>Markovich PRO v34.0</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,6 +20,7 @@
         .app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: white; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         
+        .version-tag { font-size: 0.7rem; color: #ccc; position: absolute; top: 10px; left: 10px; }
         .goal-card { background: #fff9e6; margin: 15px; padding: 20px; border-radius: 25px; border: 2px solid #fcebb6; cursor: pointer; }
         .progress-container { background: #eee; height: 26px; border-radius: 13px; overflow: hidden; position: relative; margin-top: 10px; }
         .progress-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); height: 100%; width: 0%; transition: width 1s ease; }
@@ -43,6 +44,7 @@
 <body>
 
 <div class="app">
+    <div class="version-tag">v34.0</div>
     <div id="parent-banner" class="preview-banner hidden">
         <span>👁️ מצב צפייה</span>
         <button onclick="exitPreview()" style="background:var(--danger); border:none; color:white; border-radius:8px; padding:5px 10px;">יציאה</button>
@@ -101,7 +103,7 @@
 </div>
 
 <script>
-    const DB_KEY = 'MARKOVICH_MASTER_V33';
+    const DB_KEY = 'MARKOVICH_FINAL_V34';
     const AUDIO_SUCCESS = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
 
     const DEFAULTS = {
@@ -165,7 +167,7 @@
             <div class="item-row" onclick="reqTask('${t.name}', ${t.points}, this)">
                 <div style="text-align:right;"><b>${t.name}</b></div>
                 <div style="color:var(--p); font-weight:900;">+${t.points} ⭐</div>
-            </div>`).join('') || "<p style='padding:20px; color:#999;'>אין משימות זמינות</p>";
+            </div>`).join('') || "<p style='padding:20px; color:#999;'>אין משימות זמינות כרגע</p>";
     }
 
     function filterTasks(f) {
@@ -219,7 +221,7 @@
                         <button onclick="approve(${i})" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:10px;">אשר</button>
                         <button onclick="db.pending.splice(${i},1);save();setTab('approve')" style="background:var(--danger); color:white; border:none; padding:8px 12px; border-radius:10px;">X</button>
                     </div>
-                </div>`).join('') || "אין בקשות";
+                </div>`).join('') || "אין בקשות ממתינות";
         } else if (t === 'kids') {
             body.innerHTML = db.children.map((c, i) => `
                 <div class="item-row">
@@ -268,7 +270,7 @@
     function saveConfig() {
         db.goal.name = document.getElementById('c-gn').value;
         db.goal.target = parseInt(document.getElementById('c-gt').value);
-        save(); alert("נשמר");
+        save(); alert("נשמר בהצלחה");
     }
 
     function showScreen(id) {
@@ -290,11 +292,11 @@
     }
 
     function enterAdmin() {
-        if(prompt("סיסמה:") === "1234") { showScreen('screen-admin'); setTab('approve'); }
+        if(prompt("סיסמת הורה:") === "1234") { showScreen('screen-admin'); setTab('approve'); }
     }
 
     function openDonate() {
-        const amt = parseInt(prompt("כמה כוכבים לתרום?"));
+        const amt = parseInt(prompt("כמה כוכבים לתרום ליעד?"));
         if(amt > 0 && db.children[activeKidIdx].points >= amt) {
             db.children[activeKidIdx].points -= amt;
             db.goal.current += amt;
