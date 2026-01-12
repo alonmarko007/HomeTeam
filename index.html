@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO Cloud v38.0</title>
+    <title>Markovich PRO Cloud v38.5</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,8 +15,11 @@
     <style>
         :root { --p: #4a90e2; --success: #2ed573; --danger: #ff4757; --gold: #f1c40f; --bg: #f4f7f6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: system-ui, sans-serif; }
-        body { background: var(--bg); margin: 0; direction: rtl; user-select: none; color: #2c3e50; text-align: center; }
-        .app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: white; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        body { background: var(--bg); margin: 0; direction: rtl; user-select: none; color: #2c3e50; text-align: center; height: 100vh; overflow: hidden; }
+        
+        /* Containers */
+        .app { max-width: 500px; margin: 0 auto; height: 100vh; background: white; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .screen { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 20px; }
         .hidden { display: none !important; }
         
         /* Loader */
@@ -24,27 +27,29 @@
         .loader-spin { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .goal-card { background: #fff9e6; margin: 10px 15px; padding: 15px; border-radius: 20px; border: 2px solid #fcebb6; cursor: pointer; }
-        .shoutout-card { background: #ebf5ff; margin: 5px 15px 15px; padding: 15px; border-radius: 20px; border: 2px solid #c2e0ff; position: relative; }
+        /* Cards */
+        .goal-card { background: #fff9e6; margin: 10px 15px; padding: 15px; border-radius: 20px; border: 2px solid #fcebb6; cursor: pointer; flex-shrink: 0; }
+        .shoutout-card { background: #ebf5ff; margin: 5px 15px 15px; padding: 15px; border-radius: 20px; border: 2px solid #c2e0ff; position: relative; flex-shrink: 0; }
         .shoutout-card::before { content: "📢"; position: absolute; top: -10px; right: 10px; font-size: 1.5rem; }
         
         .progress-container { background: #eee; height: 24px; border-radius: 12px; overflow: hidden; position: relative; margin-top: 8px; }
         .progress-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); height: 100%; width: 0%; transition: width 1s ease; }
         .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.85rem; font-weight: 900; line-height: 24px; top: 0; color: #333; }
 
-        .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 10px 20px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-        .pts-display { font-size: 5.5rem; font-weight: 900; color: var(--p); margin: 10px 0; display: block; }
-        .avatar { width: 75px; height: 75px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; background: white; margin: 0 auto 8px; }
+        .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 8px 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; flex-shrink: 0; }
+        .pts-display { font-size: 5rem; font-weight: 900; color: var(--p); margin: 10px 0; display: block; }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2rem; background: white; margin: 0 auto 8px; }
         
-        .admin-nav { display: flex; background: #f1f2f6; margin: 10px; border-radius: 15px; padding: 5px; gap: 4px; overflow-x: auto; }
+        /* Admin UI */
+        .admin-nav { display: flex; background: #f1f2f6; margin: 10px; border-radius: 15px; padding: 5px; gap: 4px; overflow-x: auto; flex-shrink: 0; }
         .nav-item { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: none; cursor: pointer; white-space: nowrap; }
         .nav-item.active { background: white; color: var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-main { background: var(--p); color: white; border: none; border-radius: 18px; padding: 16px; font-weight: bold; width: calc(100% - 40px); margin: 10px 20px; cursor: pointer; }
+        .btn-main { background: var(--p); color: white; border: none; border-radius: 18px; padding: 16px; font-weight: bold; width: calc(100% - 30px); margin: 10px 15px; cursor: pointer; flex-shrink: 0; }
         
         .tab-btn { border: 1px solid #ddd; background: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--p); color: white; }
         
-        .footer-info { margin-top: auto; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 0.8rem; color: #bbb; }
+        .footer-info { margin-top: auto; padding: 15px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 0.8rem; color: #bbb; flex-shrink: 0; }
         input, select { width: 85%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 1rem; }
     </style>
 </head>
@@ -56,13 +61,13 @@
 </div>
 
 <div class="app">
-    <div id="parent-banner" class="preview-banner hidden" style="background:#2c3e50; color:white; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+    <div id="parent-banner" class="preview-banner hidden" style="background:#2c3e50; color:white; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index: 10;">
         <span>👁️ מצב צפייה</span>
         <button onclick="exitPreview()" style="background:var(--danger); border:none; color:white; border-radius:8px; padding:5px 10px;">יציאה</button>
     </div>
 
-    <div id="screen-lobby" class="hidden" style="flex-grow: 1; display: flex; flex-direction: column;">
-        <h1 style="margin-top:35px; margin-bottom:10px;">Markovich ✨</h1>
+    <div id="screen-lobby" class="screen hidden">
+        <h1 style="margin-top:30px; margin-bottom:10px;">Markovich ✨</h1>
         <div class="goal-card" onclick="enterAdmin()">
             <b id="lb-goal-n">טוען...</b>
             <div class="progress-container">
@@ -71,34 +76,34 @@
             </div>
         </div>
         <div class="shoutout-card"><div id="lb-shoutout" style="font-weight:bold; color:#1e3799;">📢 טוען...</div></div>
-        <div id="lb-kids" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; padding:15px;"></div>
-        <div class="footer-info"><span>v38.0 Cloud</span> | <button onclick="enterAdmin()" style="background:none; border:none; color:var(--p); font-weight:bold;">⚙️ ניהול הורים</button></div>
+        <div id="lb-kids" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; padding:15px; flex: 1;"></div>
+        <div class="footer-info"><span>v38.5 Cloud</span> | <button onclick="enterAdmin()" style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer;">⚙️ ניהול הורים</button></div>
     </div>
 
-    <div id="screen-child" class="hidden">
-        <div style="padding:30px 20px;">
+    <div id="screen-child" class="screen hidden">
+        <div style="padding:20px;">
             <h2 id="ch-name"></h2>
             <span id="ch-pts" class="pts-display">0</span>
             <button onclick="openDonate()" style="background:#6c5ce7; color:white; border:none; border-radius:15px; padding:12px; width:80%; font-weight:bold;">תרומה ליעד המשפחתי 🎁</button>
         </div>
-        <div id="ch-tasks-ui">
-            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:15px;">
+        <div id="ch-tasks-ui" style="display:flex; flex-direction:column; flex:1;">
+            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:15px; flex-shrink:0;">
                 <button id="f-all" class="tab-btn active" onclick="filterTasks('all')">הכל</button>
                 <button id="f-morning" class="tab-btn" onclick="filterTasks('morning')">☀️ בוקר</button>
                 <button id="f-evening" class="tab-btn" onclick="filterTasks('evening')">🌙 ערב</button>
             </div>
-            <div id="ch-list-t"></div>
+            <div id="ch-list-t" style="overflow-y:auto; flex:1;"></div>
             <button onclick="toggleStore(true)" class="btn-main" style="background:var(--gold);">🛒 חנות הצ'ופרים</button>
         </div>
-        <div id="ch-store-ui" class="hidden">
+        <div id="ch-store-ui" class="hidden" style="display:flex; flex-direction:column; flex:1;">
             <h2 style="color:var(--gold);">חנות הצ'ופרים</h2>
-            <div id="ch-list-r"></div>
+            <div id="ch-list-r" style="overflow-y:auto; flex:1;"></div>
             <button onclick="toggleStore(false)" class="btn-main" style="background:#eee; color:#333;">🔙 חזרה למשימות</button>
         </div>
-        <button onclick="location.reload()" style="margin:20px; background:none; border:none; color:#ccc; font-weight:bold;">🏠 החלף משתמש</button>
+        <button onclick="location.reload()" style="margin-bottom:20px; background:none; border:none; color:#ccc; font-weight:bold; flex-shrink:0;">🏠 החלף משתמש</button>
     </div>
 
-    <div id="screen-admin" class="hidden">
+    <div id="screen-admin" class="screen hidden">
         <div class="admin-nav">
             <button id="tab-approve" class="nav-item active" onclick="setTab('approve')">אישורים</button>
             <button id="tab-kids" class="nav-item" onclick="setTab('kids')">ילדים</button>
@@ -106,18 +111,19 @@
             <button id="tab-rewards" class="nav-item" onclick="setTab('rewards')">צ'ופרים</button>
             <button id="tab-config" class="nav-item" onclick="setTab('config')">הגדרות</button>
         </div>
-        <div id="admin-body" style="flex-grow:1; overflow-y:auto; padding:10px;"></div>
+        <div id="admin-body" style="flex:1; overflow-y:auto; padding:10px;"></div>
         <button onclick="location.reload()" class="btn-main" style="background:#2c3e50;">חזרה לבית</button>
     </div>
 </div>
 
 <script>
+    // --- הקוד של ה-JavaScript נשאר זהה ל-v38.0 רק עם תיקוני ה-UI ---
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec';
     const AUDIO_SUCCESS = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
 
     const DEFAULTS = {
         children: [{id:1, name:"רני", points:0, pin:"1234", emoji:"👤"}, {id:2, name:"אופיר", points:0, pin:"1234", emoji:"👤"}, {id:3, name:"אורי", points:0, pin:"1234", emoji:"👤"}],
-        tasks: [{id:101, name:"צחצוח שיניים", points:2, time:"both", assignedTo:"all"}, {id:102, name:"סידור חדר", points:5, time:"evening", assignedTo:"all"}],
+        tasks: [{id:101, name:"צחצוח שיניים", points:2, time:"both", assignedTo:"all"}],
         rewards: [{id:201, name:"זמן מסך", points:20}],
         pending: [],
         goal: { name: "באולינג משפחתי", target: 100, current: 0 },
@@ -129,7 +135,6 @@
     let currentFilter = 'all';
     let isPreview = false;
 
-    // --- Cloud Sync ---
     async function sync(isLoad = false) {
         document.getElementById('loader').classList.remove('hidden');
         try {
@@ -141,12 +146,13 @@
                 await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(db) });
             }
         } catch (e) { console.error("Sync Error", e); }
-        
-        setTimeout(() => {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('screen-lobby').classList.remove('hidden');
-            renderLobby();
-        }, 500);
+        document.getElementById('loader').classList.add('hidden');
+        showInitialScreen();
+        renderLobby();
+    }
+
+    function showInitialScreen() {
+        if (activeKidIdx === -1) showScreen('screen-lobby');
     }
 
     function renderLobby() {
@@ -259,6 +265,14 @@
         }
     }
 
+    function toggleStore(show) {
+        document.getElementById('ch-tasks-ui').classList.toggle('hidden', show);
+        document.getElementById('ch-store-ui').classList.toggle('hidden', !show);
+        if(show) {
+            document.getElementById('ch-list-r').innerHTML = db.rewards.map(r => `<div class="item-row" onclick="buyR('${r.name}', ${r.points})"><b>${r.name}</b><span style="color:var(--gold); font-weight:bold;">${r.points} ⭐</span></div>`).join('');
+        }
+    }
+
     function buyR(n, c) {
         const k = db.children[activeKidIdx];
         if(k.points >= c && confirm(`לקנות ${n}?`)) { k.points -= c; sync(); renderChild(); toggleStore(false); }
@@ -270,20 +284,12 @@
         renderChild();
     }
 
-    function toggleStore(show) {
-        document.getElementById('ch-tasks-ui').classList.toggle('hidden', show);
-        document.getElementById('ch-store-ui').classList.toggle('hidden', !show);
-        if(show) {
-            document.getElementById('ch-list-r').innerHTML = db.rewards.map(r => `<div class="item-row" onclick="buyR('${r.name}', ${r.points})"><b>${r.name}</b><span style="color:var(--gold); font-weight:bold;">${r.points} ⭐</span></div>`).join('');
-        }
-    }
-
-    function showScreen(id) { document.querySelectorAll('.app > div:not(.preview-banner)').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    function showScreen(id) { document.querySelectorAll('.app > .screen').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     function startPreview(i) { isPreview = true; activeKidIdx = i; showScreen('screen-child'); document.getElementById('parent-banner').classList.remove('hidden'); renderChild(); }
     function exitPreview() { isPreview = false; document.getElementById('parent-banner').classList.add('hidden'); showScreen('screen-admin'); setTab('kids'); }
     function enterAdmin() { if(prompt("סיסמה:") === "1234") { showScreen('screen-admin'); setTab('approve'); } }
 
-    sync(true); // Initial load
+    sync(true);
 </script>
 </body>
 </html>
