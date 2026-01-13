@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v40.9</title>
+    <title>Markovich PRO v41.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -32,6 +32,7 @@
         
         .btn-admin-access { background: var(--dark); color: white; border: none; border-radius: 18px; padding: 18px; font-weight: bold; width: calc(100% - 30px); margin: 10px 15px; cursor: pointer; font-size: 1rem; }
         .btn-main { background: var(--p); color: white; border: none; border-radius: 18px; padding: 16px; font-weight: bold; width: calc(100% - 40px); margin: 10px 20px; cursor: pointer; }
+        .btn-edit { background: #f1f2f6; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.9rem; }
         
         .admin-nav { display: flex; background: #f1f2f6; margin: 10px; border-radius: 15px; padding: 5px; gap: 4px; overflow-x: auto; }
         .nav-item { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: none; cursor: pointer; white-space: nowrap; }
@@ -45,7 +46,7 @@
 <div class="app">
     <div id="screen-lobby">
         <div class="app-header">
-            <span class="version-badge">v40.9</span>
+            <span class="version-badge">v41.0</span>
             <h1 style="margin:0;">✨ Markovich ✨</h1>
         </div>
         
@@ -58,14 +59,12 @@
         </div>
 
         <div class="shoutout-card"><div id="lb-shoutout">📢 טוען...</div></div>
-
         <button class="btn-admin-access" onclick="enterAdmin()">⚙️ הגדרות וניהול הורים</button>
-
         <div id="lb-kids" class="kids-grid"></div>
     </div>
 
     <div id="screen-child" class="hidden">
-        <div class="app-header"><span class="version-badge">v40.9</span><h2>Markovich ✨</h2></div>
+        <div class="app-header"><span class="version-badge">v41.0</span><h2>Markovich ✨</h2></div>
         <h2 id="ch-name"></h2>
         <div id="ch-pts" style="font-size:4rem; color:var(--p); font-weight:900;">0</div>
         <div id="ch-list-t"></div>
@@ -73,7 +72,7 @@
     </div>
 
     <div id="screen-admin" class="hidden">
-        <div class="app-header"><span class="version-badge">v40.9</span><h2>ניהול הורים</h2></div>
+        <div class="app-header"><span class="version-badge">v41.0</span><h2>ניהול הורים</h2></div>
         <div class="admin-nav">
             <button id="tab-approve" class="nav-item active" onclick="setTab('approve')">אישורים</button>
             <button id="tab-kids" class="nav-item" onclick="setTab('kids')">ילדים</button>
@@ -104,8 +103,8 @@
 
     function renderLobby() {
         document.getElementById('lb-kids').innerHTML = db.children.map((c, i) => `
-            <div onclick="kidLogin(${i})">
-                <div class="avatar">${c.emoji}</div>
+            <div onclick="kidLogin(${i})" style="cursor:pointer;">
+                <div class="avatar">${c.emoji || '👤'}</div>
                 <b>${c.name}</b><br><span>${c.points} ⭐</span>
             </div>`).join('');
         document.getElementById('lb-goal-n').innerText = db.goal.name;
@@ -130,7 +129,7 @@
             </div>`).join('');
     }
 
-    function reqTask(n, p) { db.pending.push({child: db.children[activeKidIdx].name, task:n, pts:p}); save(); alert("נשלח!"); }
+    function reqTask(n, p) { db.pending.push({child: db.children[activeKidIdx].name, task:n, pts:p}); save(); alert("נשלח לאישור!"); }
 
     function showScreen(id) {
         document.getElementById('screen-lobby').classList.add('hidden');
@@ -149,14 +148,27 @@
         if(t === 'approve') {
             body.innerHTML = db.pending.map((p, i) => `<div class="item-row"><b>${p.child}: ${p.task}</b><button onclick="approve(${i})" style="background:var(--success); color:white; border:none; padding:10px; border-radius:10px;">אשר</button></div>`).join('') || "אין בקשות";
         } else if(t === 'kids') {
-            body.innerHTML = db.children.map((c, i) => `<div class="item-row"><b>${c.name}</b> <span>${c.points} ⭐</span></div>`).join('');
+            body.innerHTML = db.children.map((c, i) => `
+                <div class="item-row">
+                    <span>${c.emoji} <b>${c.name}</b> (${c.points} ⭐)</span>
+                    <button class="btn-edit" onclick="editKid(${i})">✏️ ערוך</button>
+                </div>`).join('');
         } else if(t === 'tasks') {
             body.innerHTML = db.tasks.map((tk, i) => `<div class="item-row">${tk.name} (${tk.points}) <button onclick="db.tasks.splice(${i},1);save();setTab('tasks')" style="color:red; background:none; border:none;">🗑️</button></div>`).join('') + `<button onclick="addTask()" class="btn-main">+ משימה</button>`;
         } else if(t === 'rewards') {
             body.innerHTML = db.rewards.map((r, i) => `<div class="item-row">${r.name} (${r.points}) <button onclick="db.rewards.splice(${i},1);save();setTab('rewards')" style="color:red; background:none; border:none;">🗑️</button></div>`).join('') + `<button onclick="addReward()" class="btn-main">+ צ'ופר</button>`;
         } else if(t === 'config') {
-            body.innerHTML = `<h3>פרגון:</h3><input id="c-shout" value="${db.shoutout}"><h3>יעד:</h3><input id="c-gn" value="${db.goal.name}"><input id="c-gt" type="number" value="${db.goal.target}"><button onclick="saveConf()" class="btn-main">שמור</button>`;
+            body.innerHTML = `<h3>פרגון:</h3><input id="c-shout" value="${db.shoutout}"><h3>יעד:</h3><input id="c-gn" value="${db.goal.name}"><input id="c-gt" type="number" value="${db.goal.target}"><button onclick="saveConf()" class="btn-main">שמור הגדרות</button>`;
         }
+    }
+
+    function editKid(i) {
+        const newName = prompt("שם הילד:", db.children[i].name);
+        const newEmoji = prompt("אייקון (אמוג'י):", db.children[i].emoji);
+        if(newName) db.children[i].name = newName;
+        if(newEmoji) db.children[i].emoji = newEmoji;
+        save();
+        setTab('kids');
     }
 
     function approve(i) {
