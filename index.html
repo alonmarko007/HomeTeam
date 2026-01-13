@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v42.0</title>
+    <title>Markovich PRO v42.1</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --success: #2ed573; --danger: #ff4757; --gold: #f1c40f; --bg: #f4f7f6; --dark: #2c3e50; }
@@ -31,13 +31,17 @@
         .goal-detail { font-size: 0.8rem; color: #666; margin-top: 5px; }
         .history-section { background: #f8f9ff; padding: 15px; margin: 10px 15px; border-radius: 15px; }
         .history-item { font-size: 0.8rem; padding: 5px 10px; background: white; margin: 3px 0; border-radius: 10px; display: flex; justify-content: space-between; }
+        /* Preview Mode Styles */
+        .preview-header { background: rgba(74,144,226,0.1); border: 2px solid var(--p); }
+        .preview-badge { background: var(--p) !important; color: white !important; }
+        .preview-btn { background: var(--gold) !important; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div id="screen-lobby">
-        <div class="app-header"><span class="version-badge">v42.0</span><h1>✨ Markovich ✨</h1></div>
+        <div class="app-header"><span class="version-badge">v42.1</span><h1>✨ Markovich ✨</h1></div>
         <div class="goal-card">
             <b id="lb-goal-n">טוען...</b>
             <div class="progress-container">
@@ -52,14 +56,14 @@
     </div>
 
     <div id="screen-child" class="hidden">
-        <div class="app-header"><span class="version-badge">v42.0</span><h2 id="ch-title">Markovich ✨</h2></div>
+        <div class="app-header"><span class="version-badge" id="ch-version">v42.1</span><h2 id="ch-title">Markovich ✨</h2></div>
         <h2 id="ch-name" style="margin-bottom:0;"></h2>
         <div id="ch-pts" style="font-size:4rem; color:var(--p); font-weight:900;">0</div>
         
         <div id="ch-tasks-view">
             <h3>המשימות שלי:</h3>
             <div id="ch-list-t"></div>
-            <button class="btn-main" style="background:var(--gold);" onclick="toggleStore(true)">🛒 חנות הצ'ופרים</button>
+            <button class="btn-main preview-btn" onclick="toggleStore(true)">🛒 חנות הצ'ופרים</button>
             <div class="history-section" id="ch-history">
                 <h4 style="margin:0 0 10px 0; font-size:1rem;">ההיסטוריה שלי:</h4>
                 <div id="ch-history-list"></div>
@@ -76,10 +80,11 @@
     </div>
 
     <div id="screen-admin" class="hidden">
-        <div class="app-header"><span class="version-badge">v42.0</span><h2>ניהול הורים</h2></div>
+        <div class="app-header"><span class="version-badge">v42.1</span><h2>ניהול הורים</h2></div>
         <div class="admin-nav">
             <button id="tab-approve" class="nav-item active" onclick="setTab('approve')">אישורים</button>
             <button id="tab-kids" class="nav-item" onclick="setTab('kids')">ילדים</button>
+            <button id="tab-preview" class="nav-item" onclick="setTab('preview')">👁️ תצוגת ילד</button>
             <button id="tab-tasks" class="nav-item" onclick="setTab('tasks')">משימות</button>
             <button id="tab-rewards" class="nav-item" onclick="setTab('rewards')">צ'ופרים</button>
             <button id="tab-config" class="nav-item" onclick="setTab('config')">הגדרות</button>
@@ -115,6 +120,7 @@
 
     let db = JSON.parse(localStorage.getItem(DB_KEY)) || DEFAULTS;
     let activeKidIdx = -1;
+    let previewKidIdx = -1; // For parent preview mode
 
     function persist() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
     function renderLobby() {
@@ -161,18 +167,27 @@
         }
     }
 
-    function renderChild() {
-        const k = db.children[activeKidIdx];
+    function renderChild(isPreview = false) {
+        const kidIdx = isPreview ? previewKidIdx : activeKidIdx;
+        const k = db.children[kidIdx];
+        
+        // Add preview styling
+        if (isPreview) {
+            document.querySelector('.app-header').classList.add('preview-header');
+            document.getElementById('ch-version').classList.add('preview-badge');
+            document.getElementById('ch-version').innerText = 'מצב תצוגה 👁️';
+        }
+        
         document.getElementById('ch-name').innerText = `היי ${k.name}!`;
         document.getElementById('ch-pts').innerText = k.points;
         
         document.getElementById('ch-list-t').innerHTML = db.tasks.map(t => `
-            <div class="item-row" onclick="reqTask('${t.name}', ${t.points})">
+            <div class="item-row">
                 <b>${t.name}</b><span style="color:var(--p); font-weight:bold;">+${t.points} ⭐</span>
             </div>`).join('');
 
         document.getElementById('ch-list-r').innerHTML = db.rewards.map(r => `
-            <div class="item-row" onclick="buyReward('${r.name}', ${r.points})">
+            <div class="item-row">
                 <b>${r.name}</b><span style="color:var(--gold); font-weight:bold;">${r.points} ⭐</span>
             </div>`).join('');
 
@@ -240,6 +255,22 @@
                     <span>${c.emoji} <b>${c.name}</b> (${c.points} ⭐)</span>
                     <button onclick="editKid(${i})" style="background:#eee; border:none; padding:5px 10px; border-radius:8px;">✏️ ערוך</button>
                 </div>`).join('');
+        } else if(t === 'preview') {
+            body.innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <h3>👁️ תצוגת ילד</h3>
+                    <p>לחץ על ילד כדי לראות בדיוק מה שהוא רואה:</p>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; padding:0 15px 20px;">
+                    ${db.children.map((c, i) => `
+                        <div onclick="previewKid(${i})" style="cursor:pointer; padding:15px; background:white; border-radius:20px; border:2px solid var(--p); text-align:center;">
+                            <div class="avatar">${c.emoji}</div>
+                            <b>${c.name}</b><br>
+                            <span style="font-size:0.9rem;">${c.points} ⭐</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="exitPreview()" class="btn-main" style="background:var(--dark);">🔙 חזרה לניהול</button>`;
         } else if(t === 'tasks') {
             body.innerHTML = db.tasks.map((tk, i) => `
                 <div class="item-row">
@@ -259,6 +290,20 @@
                 <h3>נקודות יעד:</h3><input id="c-gt" type="number" value="${db.goal.target}" min="1">
                 <button onclick="saveConf()" class="btn-main">שמור הכל</button>`;
         }
+    }
+
+    function previewKid(i) {
+        previewKidIdx = i;
+        showScreen('screen-child');
+        renderChild(true); // true = preview mode
+    }
+
+    function exitPreview() {
+        document.querySelector('.app-header').classList.remove('preview-header');
+        document.getElementById('ch-version').classList.remove('preview-badge');
+        document.getElementById('ch-version').innerText = 'v42.1';
+        showScreen('screen-admin');
+        setTab('preview');
     }
 
     function approve(i) {
