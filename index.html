@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v42.1 Cloud</title>
+    <title>Markovich PRO v42.2 Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --success: #2ed573; --danger: #ff4757; --gold: #f1c40f; --bg: #f4f7f6; --dark: #2c3e50; }
@@ -41,7 +41,7 @@
 
 <div class="app">
     <div id="screen-lobby">
-        <div class="app-header"><span class="version-badge">v42.1 Cloud</span><h1>✨ Markovich ✨</h1></div>
+        <div class="app-header"><span class="version-badge">v42.2 Cloud</span><h1>✨ Markovich ✨</h1></div>
         <div class="goal-card">
             <b id="lb-goal-n">טוען...</b>
             <div class="progress-container">
@@ -56,7 +56,7 @@
     </div>
 
     <div id="screen-child" class="hidden">
-        <div class="app-header"><span class="version-badge" id="ch-version">v42.1</span><h2 id="ch-title">Markovich ✨</h2></div>
+        <div class="app-header"><span class="version-badge" id="ch-version">v42.2</span><h2 id="ch-title">Markovich ✨</h2></div>
         <h2 id="ch-name" style="margin-bottom:0;"></h2>
         <div id="ch-pts" style="font-size:4rem; color:var(--p); font-weight:900;">0</div>
         
@@ -80,7 +80,7 @@
     </div>
 
     <div id="screen-admin" class="hidden">
-        <div class="app-header"><span class="version-badge">v42.1</span><h2>ניהול הורים</h2></div>
+        <div class="app-header"><span class="version-badge">v42.2</span><h2>ניהול הורים</h2></div>
         <div class="admin-nav">
             <button id="tab-approve" class="nav-item active" onclick="setTab('approve')">אישורים</button>
             <button id="tab-kids" class="nav-item" onclick="setTab('kids')">ילדים</button>
@@ -106,7 +106,6 @@
 </div>
 
 <script>
-    // ה-URL המעודכן שקיבלת מה-Deployment
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec';
     const DB_KEY = 'MARKOVICH_PRO_V42';
 
@@ -179,7 +178,7 @@
             document.getElementById('ch-version').innerText = 'תצוגת הורה 👁️';
         } else {
             document.querySelector('#screen-child .app-header').classList.remove('preview-header');
-            document.getElementById('ch-version').innerText = 'v42.1';
+            document.getElementById('ch-version').innerText = 'v42.2';
         }
         document.getElementById('ch-name').innerText = `היי ${k.name}!`;
         document.getElementById('ch-pts').innerText = k.points;
