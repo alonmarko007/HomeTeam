@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v42.8</title>
+    <title>Markovich PRO v42.9</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --success: #2ed573; --danger: #ff4757; --gold: #f1c40f; --bg: #f4f7f6; --dark: #2c3e50; }
@@ -19,13 +19,13 @@
         .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.85rem; font-weight: 900; line-height: 24px; top: 0; color: #333; }
         .shoutout-card { background: #ebf5ff; margin: 5px 15px 15px; padding: 15px; border-radius: 20px; border: 2px solid #c2e0ff; position: relative; font-weight: bold; color: #1e3799; }
         .kids-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 20px 15px; }
-        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; background: white; margin: 0 auto 8px; }
+        /* תיקון: הגבלת גודל טקסט והסתרת חריגות באווטאר */
+        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; background: white; margin: 0 auto 8px; overflow: hidden; }
         .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 10px 15px; display: flex; align-items: center; justify-content: space-between; text-align: right; }
         .btn-main { background: var(--p); color: white; border: none; border-radius: 18px; padding: 16px; font-weight: bold; width: calc(100% - 40px); margin: 10px 20px; cursor: pointer; }
         .nav-item { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: none; cursor: pointer; white-space: nowrap; }
         .nav-item.active { background: white; color: var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; font-weight: bold; color: var(--p); }
-        /* סטייל חדש להודעת אישור שסוגרים ידנית */
         #status-msg { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark); color: white; padding: 20px; border-radius: 15px; z-index: 2000; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
     </style>
 </head>
@@ -33,13 +33,13 @@
 
 <div id="cloud-loader" class="loading-overlay">
     <div style="font-size: 3rem; margin-bottom: 10px;">☁️</div>
-    <div>מעדכן נתונים...</div>
+    <div>מסנכרן נתונים...</div>
 </div>
 
 <div class="app">
     <!-- מסך בחירת ילד -->
     <div id="screen-lobby">
-        <div class="app-header"><span class="version-badge">v42.8</span><h1>✨ Markovich ✨</h1></div>
+        <div class="app-header"><span class="version-badge">v42.9</span><h1>✨ Markovich ✨</h1></div>
         <div class="goal-card">
             <b id="lb-goal-n">טוען...</b>
             <div class="progress-container">
@@ -56,7 +56,7 @@
     <div id="screen-child" class="hidden">
         <div class="app-header" style="flex-direction: row; justify-content: space-between; width: 100%; padding: 10px 20px;">
             <button onclick="enterAdmin()" style="background:none; border:1px solid #ccc; border-radius:10px; padding:5px 10px;">⚙️ ניהול</button>
-            <span class="version-badge">v42.8</span>
+            <span class="version-badge">v42.9</span>
         </div>
         
         <h2 id="ch-name" style="margin:10px 0 0;"></h2>
@@ -91,7 +91,7 @@
         <button onclick="location.reload()" class="btn-main" style="background:var(--dark);">סגור ניהול</button>
     </div>
 
-    <!-- הודעת סטטוס שלא נעלמת לבד -->
+    <!-- הודעת סטטוס -->
     <div id="status-msg" class="hidden">
         <div id="status-text"></div>
         <button onclick="closeStatus()" class="btn-main" style="margin: 15px 0 0; width:100%; padding:10px;">הבנתי, תודה!</button>
@@ -148,13 +148,19 @@
     function renderLobby() {
         document.getElementById('lb-kids').innerHTML = db.children.map((c, i) => `
             <div onclick="showPinModal(${i})">
-                <div class="avatar">${c.emoji}</div>
+                <!-- תיקון: אם האימוג'י ריק, השתמש בברירת מחדל -->
+                <div class="avatar">${c.emoji || '👤'}</div>
                 <b>${c.name}</b><br><span>${c.points} ⭐</span>
             </div>`).join('');
-        document.getElementById('lb-goal-n').innerText = db.goal.name;
-        document.getElementById('lb-goal-s').innerText = `${db.goal.current} / ${db.goal.target}`;
-        document.getElementById('lb-goal-b').style.width = (db.goal.current/db.goal.target*100) + "%";
-        document.getElementById('lb-shoutout').innerText = "📢 " + db.shoutout;
+        
+        // הגנה מפני נתונים חסרים ביעד
+        const current = db.goal?.current || 0;
+        const target = db.goal?.target || 100;
+        
+        document.getElementById('lb-goal-n').innerText = db.goal?.name || "יעד משפחתי";
+        document.getElementById('lb-goal-s').innerText = `${current} / ${target}`;
+        document.getElementById('lb-goal-b').style.width = (current/target*100) + "%";
+        document.getElementById('lb-shoutout').innerText = "📢 " + (db.shoutout || "ברוכים הבאים!");
     }
 
     function renderChild() {
@@ -173,7 +179,6 @@
         db.pending.push({child: db.children[activeKidIdx].name, task: name, pts: pts, type: type});
         await persist();
         
-        // הצגת הודעה שלא נעלמת מהמסך
         const msg = type === 'משימה' ? `המשימה "${name}" נשלחה לאישור הורים!` : `הבקשה לצ'ופר "${name}" נשלחה!`;
         document.getElementById('status-text').innerText = msg;
         document.getElementById('status-msg').classList.remove('hidden');
@@ -181,7 +186,7 @@
 
     function closeStatus() {
         document.getElementById('status-msg').classList.add('hidden');
-        renderChild(); // מעדכן את המסך מבלי לרענן הכל
+        renderChild();
     }
 
     function toggleStore(show) {
