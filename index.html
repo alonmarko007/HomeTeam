@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markovich PRO v45.0 - Ultimate Edition</title>
+    <title>Markovich PRO v45.1</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root { --p: #4a90e2; --success: #2ed573; --danger: #ff4757; --gold: #f1c40f; --bg: #f4f7f6; --dark: #2c3e50; }
@@ -17,38 +17,36 @@
         .progress-container { background: #eee; height: 24px; border-radius: 12px; overflow: hidden; position: relative; margin-top: 8px; }
         .progress-fill { background: linear-gradient(90deg, #2ed573, #7bed9f); height: 100%; width: 0%; transition: width 1s ease; }
         .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.85rem; font-weight: 900; line-height: 24px; top: 0; color: #333; }
-        .shoutout-card { background: #ebf5ff; margin: 5px 15px 15px; padding: 15px; border-radius: 20px; border: 2px solid #c2e0ff; font-weight: bold; color: #1e3799; }
+        .shoutout-card { background: #ebf5ff; margin: 5px 15px 15px; padding: 12px; border-radius: 20px; border: 2px solid #c2e0ff; font-weight: bold; color: #1e3799; font-size: 0.9rem; }
         .kids-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; }
-        .kid-btn { position: relative; cursor: pointer; }
+        .kid-btn { position: relative; cursor: pointer; text-decoration: none; color: inherit; }
         .avatar { width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; background: white; margin: 0 auto 8px; }
         .pending-badge { position: absolute; top: -5px; right: 5px; background: var(--danger); color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; line-height: 22px; font-weight: bold; border: 2px solid white; }
-        .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 10px 15px; display: flex; align-items: center; justify-content: space-between; text-align: right; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .item-row { background: white; border: 1px solid #eee; border-radius: 20px; padding: 15px; margin: 10px 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
+        .item-row.sent { opacity: 0.5; pointer-events: none; background: #f0f0f0; }
         .btn-main { background: var(--p); color: white; border: none; border-radius: 18px; padding: 16px; font-weight: bold; width: calc(100% - 40px); margin: 10px 20px; cursor: pointer; font-size: 1rem; }
         .admin-nav { display: flex; background: #f1f2f6; margin: 10px; border-radius: 15px; padding: 5px; gap: 4px; overflow-x: auto; }
-        .nav-item { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: none; cursor: pointer; white-space: nowrap; }
+        .nav-item { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: none; cursor: pointer; }
         .nav-item.active { background: white; color: var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 1rem; }
-        .history-section { background: #f8f9ff; padding: 15px; margin: 15px; border-radius: 20px; border: 1px dashed #cbdcf0; }
-        .history-item { font-size: 0.85rem; padding: 8px; background: white; margin-bottom: 5px; border-radius: 10px; display: flex; justify-content: space-between; }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; }
+        .history-section { background: #f8f9ff; padding: 15px; margin: 15px; border-radius: 20px; }
+        .history-item { font-size: 0.8rem; padding: 8px; background: white; margin-bottom: 5px; border-radius: 10px; display: flex; justify-content: space-between; }
+        .loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div id="cloud-loader" class="loading-overlay">
+<div id="loader" class="loader">
     <div style="font-size: 3rem;">☁️</div>
-    <div style="margin-top:10px; font-weight:bold; color:var(--p);">מסנכרן נתונים...</div>
+    <b>מסנכרן נתונים...</b>
 </div>
 
 <div class="app">
     <div id="screen-lobby">
-        <div class="app-header"><span class="version-badge">v45.0 Cloud</span><h1>✨ Markovich ✨</h1></div>
+        <div class="app-header"><span class="version-badge">v45.1</span><h1>✨ Markovich ✨</h1></div>
         <div class="goal-card">
             <b id="lb-goal-n">טוען יעד...</b>
-            <div class="progress-container">
-                <div id="lb-goal-b" class="progress-fill"></div>
-                <div id="lb-goal-s" class="progress-text">0 / 0</div>
-            </div>
+            <div class="progress-container"><div id="lb-goal-b" class="progress-fill"></div><div id="lb-goal-s" class="progress-text">0 / 0</div></div>
         </div>
         <div class="shoutout-card" id="lb-shoutout">📢 טוען...</div>
         <div id="lb-kids" class="kids-grid"></div>
@@ -56,30 +54,22 @@
     </div>
 
     <div id="screen-child" class="hidden">
-        <div class="app-header">
-            <h2 id="ch-name" style="margin:0;"></h2>
-            <div id="ch-pts" style="font-size:3.5rem; color:var(--p); font-weight:900;">0</div>
-            <p style="margin:0;">כוכבים שצברת</p>
-        </div>
-        
+        <div class="app-header"><h2 id="ch-name"></h2><div id="ch-pts" style="font-size:3.5rem; color:var(--p); font-weight:900;">0</div><p>כוכבים</p></div>
         <div id="ch-tasks-view">
-            <button class="btn-main" style="background:var(--success);" onclick="contributeToGoal()">🎁 תרום 10 ליעד המשפחתי</button>
+            <button class="btn-main" style="background:var(--success);" onclick="contributeToGoal()">🎁 תרומה ליעד המשפחתי (10)</button>
             <button class="btn-main" style="background:var(--gold);" onclick="toggleStore(true)">🛒 חנות צ'ופרים</button>
-            <h3 style="text-align:right; margin-right:20px;">המשימות שלי:</h3>
+            <h3 style="text-align:right; margin: 10px 20px;">המשימות שלי:</h3>
             <div id="ch-list-t"></div>
-            
             <div class="history-section">
-                <h4 style="margin:0 0 10px; text-align:right;">היסטוריה אחרונה:</h4>
+                <h4 style="margin:0 0 10px; text-align:right;">היסטוריה:</h4>
                 <div id="ch-history"></div>
             </div>
         </div>
-        
         <div id="ch-store-view" class="hidden">
-            <h3 style="color:var(--gold);">חנות הצ'ופרים:</h3>
+            <h3 style="color:var(--gold);">חנות צ'ופרים:</h3>
             <div id="ch-list-r"></div>
             <button class="btn-main" style="background:#eee; color:#333;" onclick="toggleStore(false)">🔙 חזרה למשימות</button>
         </div>
-        
         <button onclick="location.reload()" class="btn-main" style="background:#ccc; margin-top: auto;">🏠 החלף משתמש</button>
     </div>
 
@@ -91,40 +81,36 @@
             <button id="tab-rewards" class="nav-item" onclick="setTab('rewards')">צ'ופרים</button>
             <button id="tab-config" class="nav-item" onclick="setTab('config')">הגדרות</button>
         </div>
-        <div id="admin-body" style="flex:1; overflow-y:auto; padding-bottom:20px;"></div>
+        <div id="admin-body" style="flex:1; overflow-y:auto;"></div>
         <button onclick="location.reload()" class="btn-main" style="background:var(--dark);">סגור ניהול</button>
     </div>
 
     <div id="pin-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:1000;">
         <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:320px;">
-            <h3 id="pin-title">הזן קוד</h3>
+            <h3>הזן קוד סודי</h3>
             <input id="pin-input" type="password" inputmode="numeric" maxlength="4" style="font-size:2rem; text-align:center;">
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button onclick="checkPin()" class="btn-main" style="flex:1; margin:0;">כניסה</button>
-                <button onclick="closePinModal()" class="btn-main" style="flex:1; margin:0; background:#ccc;">ביטול</button>
-            </div>
+            <div style="display:flex; gap:10px; margin-top:15px;"><button onclick="checkPin()" class="btn-main" style="flex:1; margin:0;">כניסה</button><button onclick="closePinModal()" class="btn-main" style="flex:1; margin:0; background:#ccc;">ביטול</button></div>
         </div>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwz-PZrXzwzO-O0aHlOUZhIz0ShsM42Sm-jhwFMpa62uodDYhXDFuJIsqemCBblV5M/exec';
-    const DB_KEY = 'MARKOVICH_ULTIMATE_V45';
+    const DB_KEY = 'MARKOVICH_DB_V45';
 
     let db = {
         children: [{name:"רני", points:0, pin:"1234", emoji:"👦"}, {name:"אופיר", points:0, pin:"1234", emoji:"👧"}, {name:"אורי", points:0, pin:"1234", emoji:"👶"}],
-        tasks: [{name:"צחצוח שיניים", points:2}, {name:"סידור החדר", points:5}],
+        tasks: [{name:"צחצוח שיניים", points:2}, {name:"סידור חדר", points:5}],
         rewards: [{name:"15 דק' מסך", points:20}, {name:"ממתק", points:30}],
         pending: [],
         goal: { name: "באולינג משפחתי", target: 100, current: 0 },
-        shoutout: "כל הכבוד!",
+        shoutout: "כל הכבוד לכולם!",
         history: []
     };
 
     let activeKidIdx = -1;
 
     async function loadData() {
-        document.getElementById('cloud-loader').classList.remove('hidden');
         try {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
@@ -133,7 +119,7 @@
             const local = localStorage.getItem(DB_KEY);
             if(local) db = JSON.parse(local);
         }
-        document.getElementById('cloud-loader').classList.add('hidden');
+        document.getElementById('loader').classList.add('hidden');
         renderLobby();
     }
 
@@ -146,10 +132,12 @@
         const grid = document.getElementById('lb-kids');
         grid.innerHTML = db.children.map((c, i) => {
             const count = db.pending.filter(p => p.child === c.name).length;
+            // תיקון ה-Undefined: מוודא שיש אמוג'י, אם לא שם תו ברירת מחדל
+            const emoji = c.emoji || '👤'; 
             return `
                 <div class="kid-btn" onclick="openPinModal(${i})">
-                    <div class="avatar">${c.emoji}</div>
-                    <b>${c.name}</b><br><small>${c.points} ⭐</small>
+                    <div class="avatar">${emoji}</div>
+                    <b>${c.name}</b><br><small>⭐ ${c.points}</small>
                     ${count > 0 ? `<div class="pending-badge">${count}</div>` : ''}
                 </div>`;
         }).join('');
@@ -164,10 +152,14 @@
         document.getElementById('ch-name').innerText = `היי ${kid.name}!`;
         document.getElementById('ch-pts').innerText = kid.points;
 
-        document.getElementById('ch-list-t').innerHTML = db.tasks.map(t => `
-            <div class="item-row" onclick="actionItem('${t.name}', ${t.points}, 'task')">
-                <b>${t.name}</b> <span style="color:var(--p)">+${t.points} ⭐</span>
-            </div>`).join('');
+        // רינדור משימות עם בדיקה אם המשימה כבר נשלחה
+        document.getElementById('ch-list-t').innerHTML = db.tasks.map(t => {
+            const isSent = db.pending.some(p => p.child === kid.name && p.item === t.name);
+            return `
+                <div class="item-row ${isSent ? 'sent' : ''}" onclick="actionItem('${t.name}', ${t.points}, 'task')">
+                    <b>${t.name}</b> <span>${isSent ? 'בבדיקה...' : `+${t.points} ⭐`}</span>
+                </div>`;
+        }).join('');
 
         document.getElementById('ch-list-r').innerHTML = db.rewards.map(r => `
             <div class="item-row" onclick="actionItem('${r.name}', ${r.points}, 'reward')">
@@ -176,10 +168,8 @@
 
         const kidHist = db.history.filter(h => h.child === kid.name).slice(-4).reverse();
         document.getElementById('ch-history').innerHTML = kidHist.map(h => `
-            <div class="history-item">
-                <span>${h.item}</span>
-                <span style="color:${h.val > 0 ? 'var(--success)' : 'var(--danger)'}">${h.val > 0 ? '+' : ''}${h.val} ⭐</span>
-            </div>`).join('') || '<small>אין פעולות אחרונות</small>';
+            <div class="history-item"><span>${h.item}</span><span style="color:${h.val > 0 ? 'var(--success)' : 'var(--danger)'}">${h.val > 0 ? '+' : ''}${h.val}</span></div>
+        `).join('') || '<small>אין פעולות</small>';
     }
 
     function openPinModal(i) { activeKidIdx = i; document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('pin-input').value=""; document.getElementById('pin-input').focus(); }
@@ -187,17 +177,15 @@
     function checkPin() {
         if(document.getElementById('pin-input').value === db.children[activeKidIdx].pin) {
             closePinModal(); showScreen('screen-child'); renderChild();
-        } else { alert("קוד שגוי!"); }
+        } else { alert("קוד שגוי"); }
     }
 
     async function actionItem(name, pts, type) {
-        if(type === 'reward' && db.children[activeKidIdx].points < pts) {
-            alert("אין לך מספיק כוכבים לצ'ופר הזה..."); return;
-        }
+        if(type === 'reward' && db.children[activeKidIdx].points < pts) { alert("אין מספיק כוכבים"); return; }
         db.pending.push({ child: db.children[activeKidIdx].name, item: name, val: (type==='task'?pts:-pts) });
+        renderChild(); // מעדכן ויזואלית מיד (מראה "בבדיקה")
         await sync();
-        alert("הבקשה נשלחה לאישור הורים!");
-        location.reload();
+        alert("נשלח לאישור הורים!");
     }
 
     async function contributeToGoal() {
@@ -207,8 +195,7 @@
             db.history.push({child: kid.name, item: "תרומה ליעד", val: -10});
             if(window.confetti) confetti();
             await sync(); renderChild();
-            alert("תודה! תרמת 10 כוכבים!");
-        } else { alert("צריך 10 כוכבים לפחות."); }
+        } else { alert("צריך 10 כוכבים"); }
     }
 
     function setTab(t) {
@@ -216,65 +203,40 @@
         document.getElementById('tab-' + t).classList.add('active');
         const body = document.getElementById('admin-body');
         body.innerHTML = "";
-
         if(t === 'approve') {
             body.innerHTML = db.pending.map((p, i) => `
                 <div class="item-row">
-                    <div style="text-align:right"><b>${p.child}</b><br><small>${p.item} (${p.val > 0 ? '+' : ''}${p.val})</small></div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="approve(${i})" style="background:var(--success); color:white; border:none; padding:10px; border-radius:10px;">✅</button>
-                        <button onclick="reject(${i})" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:10px;">❌</button>
-                    </div>
-                </div>`).join('') || "<p>אין בקשות ממתינות</p>";
+                    <div style="text-align:right"><b>${p.child}</b><br><small>${p.item}</small></div>
+                    <div style="display:flex; gap:5px;"><button onclick="approve(${i})" style="background:var(--success); color:white; border:none; padding:10px; border-radius:10px;">✅</button>
+                    <button onclick="reject(${i})" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:10px;">❌</button></div>
+                </div>`).join('') || "<p>אין בקשות</p>";
         } else if (t === 'tasks' || t === 'rewards') {
             const list = (t === 'tasks') ? db.tasks : db.rewards;
-            body.innerHTML = list.map((item, i) => `
-                <div class="item-row"><b>${item.name}</b> <span>${item.points} ⭐ <button onclick="deleteItem('${t}', ${i})">🗑️</button></span></div>
-            `).join('') + `<button class="btn-main" onclick="addItem('${t}')">+ הוסף פריט</button>`;
+            body.innerHTML = list.map((item, i) => `<div class="item-row"><b>${item.name}</b> <span>${item.points} ⭐ <button onclick="deleteItem('${t}', ${i})">🗑️</button></span></div>`).join('') + `<button class="btn-main" onclick="addItem('${t}')">+ הוסף</button>`;
         } else if (t === 'config') {
-            body.innerHTML = `
-                <div style="padding:15px; text-align:right;">
-                    <label>מילה טובה:</label><input id="in-shout" value="${db.shoutout}">
-                    <label>שם היעד המשפחתי:</label><input id="in-gn" value="${db.goal.name}">
-                    <label>כוכבים ביעד:</label><input id="in-gc" type="number" value="${db.goal.current}">
-                    <label>סך הכל מטרה:</label><input id="in-gt" type="number" value="${db.goal.target}">
-                    <button class="btn-main" onclick="saveConfig()">שמור הכל</button>
-                </div>`;
+            body.innerHTML = `<div style="padding:15px; text-align:right;"><label>מילה טובה:</label><input id="in-shout" value="${db.shoutout}"><label>יעד:</label><input id="in-gn" value="${db.goal.name}"><label>נוכחי:</label><input id="in-gc" type="number" value="${db.goal.current}"><label>מטרה:</label><input id="in-gt" type="number" value="${db.goal.target}"><button class="btn-main" onclick="saveConfig()">שמור</button></div>`;
         }
     }
 
     async function approve(i) {
         const p = db.pending[i];
         const kid = db.children.find(c => c.name === p.child);
-        if(kid) {
-            kid.points += p.val;
-            db.history.push({ child: p.child, item: p.item, val: p.val });
-        }
-        db.pending.splice(i, 1);
-        await sync(); setTab('approve');
+        if(kid) { kid.points += p.val; db.history.push({ child: p.child, item: p.item, val: p.val }); }
+        db.pending.splice(i, 1); await sync(); setTab('approve');
     }
-
     async function reject(i) { db.pending.splice(i,1); await sync(); setTab('approve'); }
-
-    async function addItem(type) {
-        const n = prompt("שם:"); const p = parseInt(prompt("כוכבים:"));
-        if(n && p) { db[type].push({name:n, points:p}); await sync(); setTab(type); }
-    }
-
+    async function addItem(type) { const n = prompt("שם:"); const p = parseInt(prompt("ניקוד:")); if(n && p) { db[type].push({name:n, points:p}); await sync(); setTab(type); } }
     async function deleteItem(type, i) { db[type].splice(i,1); await sync(); setTab(type); }
-
     async function saveConfig() {
         db.shoutout = document.getElementById('in-shout').value;
         db.goal.name = document.getElementById('in-gn').value;
         db.goal.current = parseInt(document.getElementById('in-gc').value);
         db.goal.target = parseInt(document.getElementById('in-gt').value);
-        await sync(); alert("נשמר!"); location.reload();
+        await sync(); location.reload();
     }
-
     function showScreen(id) { document.querySelectorAll('.app > div').forEach(s => s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     function toggleStore(show) { document.getElementById('ch-tasks-view').classList.toggle('hidden', show); document.getElementById('ch-store-view').classList.toggle('hidden', !show); }
     function enterAdmin() { if(prompt("סיסמה:") === "1234") { showScreen('screen-admin'); setTab('approve'); } }
-
     loadData();
 </script>
 </body>
